@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>歸序 Ordine — 現代極簡個人記帳</title>
+  <title>歸序 Ordine — 現代極簡多幣種個人記帳</title>
   
   <!-- PWA & Mobile Web App Meta -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="歸序 Ordine">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" id="meta-theme-color" content="#F7F5F0">
+  <meta name="theme-color" id="meta-theme-color" content="#F8F6F1">
   
   <!-- App Icons -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -40,9 +40,8 @@
   </script>
 
   <style>
-    /* Theme Variables Definition */
+    /* Theme Variables */
     :root {
-      /* Default Theme: 01. 燕麥香檳 (Champagne & Warm Oat) */
       --bg-main: #F8F6F1;
       --card-bg: #FFFFFF;
       --card-border: #ECE7DF;
@@ -60,7 +59,6 @@
       --shadow-md: 0 8px 30px rgba(40, 35, 30, 0.06);
     }
 
-    /* Theme 02: 🌲 靜謐墨翠 (Alpine Forest & Sage) */
     [data-theme="sage"] {
       --bg-main: #F4F6F4;
       --card-bg: #FFFFFF;
@@ -79,7 +77,6 @@
       --shadow-md: 0 8px 30px rgba(20, 40, 30, 0.06);
     }
 
-    /* Theme 03: 🌑 極夜曜石 (Obsidian & Matte Titanium Dark) */
     [data-theme="obsidian"] {
       --bg-main: #0C0E12;
       --card-bg: #14171D;
@@ -98,7 +95,6 @@
       --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.4);
     }
 
-    /* Theme 04: 🪞 莫蘭迪霧藍 (Morandi Mist & Slate Blue) */
     [data-theme="mist"] {
       --bg-main: #F1F4F8;
       --card-bg: #FFFFFF;
@@ -138,16 +134,13 @@
       transition: all 0.3s ease;
     }
 
-    /* Smooth luxury bottom sheet */
     .modal-sheet {
       transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Hide scrollbars */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Number typography enhancement */
     .num-font {
       font-feature-settings: "tnum" 1, "cv01" 1;
       letter-spacing: -0.02em;
@@ -173,10 +166,10 @@
         <p id="currentDateDisplay" class="text-xs text-[var(--text-sub)] mt-0.5 tracking-wide">2026年8月24日 週一</p>
       </div>
 
-      <!-- Action Buttons (Theme / Lang / Settings) -->
+      <!-- Action Buttons (Theme / Lang / Currency / Settings) -->
       <div class="flex items-center gap-1.5">
         <!-- Palette Theme Switcher Button -->
-        <button onclick="openThemeModal()" class="w-9 h-9 flex items-center justify-center rounded-full border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] hover:opacity-80 active:scale-95 transition-all shadow-sm" title="切換高雅主題">
+        <button onclick="openThemeModal()" class="w-9 h-9 flex items-center justify-center rounded-full border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] hover:opacity-80 active:scale-95 transition-all shadow-sm" title="美學配色">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 21a4 4 0 01-4-4 5 5 0 013-4.582V7a5 5 0 0110 0v5.418A5 5 0 0119 17a4 4 0 01-4 4H7zM7 21h10"/></svg>
         </button>
 
@@ -197,14 +190,13 @@
       
       <!-- 1. Hero Summary Budget Card (High-End Luxury Card) -->
       <section class="custom-hero rounded-3xl p-6 text-white relative overflow-hidden">
-        <!-- Ambient decorative grain & glow circle -->
         <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-[var(--hero-accent)] opacity-10 blur-2xl pointer-events-none"></div>
 
         <div class="flex justify-between items-start">
           <div>
             <span id="lblMonthlyExpense" class="text-xs uppercase tracking-widest text-white/65 font-medium">本月總支出</span>
             <div class="flex items-baseline gap-1 mt-1">
-              <span class="text-xs font-semibold text-[var(--hero-accent)]">NT$</span>
+              <span id="baseCurrencySymbol1" class="text-xs font-semibold text-[var(--hero-accent)]">NT$</span>
               <span id="totalExpenseDisplay" class="text-3xl font-bold num-font tracking-tight">0</span>
             </div>
           </div>
@@ -311,7 +303,7 @@
 
   <!-- ==================== MODALS ==================== -->
 
-  <!-- 1. Theme Picker Modal (4 Luxury Styles) -->
+  <!-- 1. Theme Picker Modal -->
   <div id="themeModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 transition-opacity duration-200">
     <div class="bg-[var(--card-bg)] w-full max-w-md rounded-t-[32px] sm:rounded-3xl p-6 modal-sheet transform translate-y-full border border-[var(--card-border)] shadow-2xl space-y-4">
       <div class="w-12 h-1.5 bg-stone-300 rounded-full mx-auto mb-2 opacity-60"></div>
@@ -324,15 +316,10 @@
         <button onclick="closeThemeModal()" class="p-1.5 text-[var(--text-sub)] hover:text-[var(--text-main)] text-sm">✕</button>
       </div>
 
-      <!-- Theme Cards List -->
       <div class="space-y-2.5 pt-1">
-        
-        <!-- Theme 1: 燕麥香檳 -->
         <button onclick="setTheme('oat')" class="theme-card w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all text-left" data-theme-name="oat">
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center font-serif text-amber-800 shadow-sm" style="background: linear-gradient(135deg, #F8F6F1, #E8E2D5); border: 1px solid #D4AF37;">
-              ✨
-            </div>
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center font-serif text-amber-800 shadow-sm" style="background: linear-gradient(135deg, #F8F6F1, #E8E2D5); border: 1px solid #D4AF37;">✨</div>
             <div>
               <p class="text-sm font-bold text-stone-900">燕麥香檳 <span class="text-xs font-serif font-normal text-stone-500">Champagne Oat</span></p>
               <p class="text-[11px] text-stone-500">法式極簡 · 溫潤亞麻 · 雅緻燙金 (預設)</p>
@@ -341,12 +328,9 @@
           <span class="theme-check text-stone-900 font-bold text-sm hidden">✓</span>
         </button>
 
-        <!-- Theme 2: 靜謐墨翠 -->
         <button onclick="setTheme('sage')" class="theme-card w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all text-left" data-theme-name="sage">
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-emerald-300 shadow-sm" style="background: linear-gradient(135deg, #0F1F1A, #162C24); border: 1px solid #34D399;">
-              🌲
-            </div>
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-emerald-300 shadow-sm" style="background: linear-gradient(135deg, #0F1F1A, #162C24); border: 1px solid #34D399;">🌲</div>
             <div>
               <p class="text-sm font-bold text-emerald-950 dark:text-white">靜謐墨翠 <span class="text-xs font-serif font-normal text-emerald-700">Alpine Forest</span></p>
               <p class="text-[11px] text-emerald-700">北歐高奢 · 森林黑曜 · 晨霧苔綠</p>
@@ -355,12 +339,9 @@
           <span class="theme-check text-emerald-800 font-bold text-sm hidden">✓</span>
         </button>
 
-        <!-- Theme 3: 極夜曜石 -->
         <button onclick="setTheme('obsidian')" class="theme-card w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all text-left" data-theme-name="obsidian">
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-amber-400 shadow-sm" style="background: linear-gradient(135deg, #191E28, #0C0E12); border: 1px solid #F59E0B;">
-              🌑
-            </div>
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-amber-400 shadow-sm" style="background: linear-gradient(135deg, #191E28, #0C0E12); border: 1px solid #F59E0B;">🌑</div>
             <div>
               <p class="text-sm font-bold text-stone-900 dark:text-white">極夜曜石 <span class="text-xs font-serif font-normal text-amber-500">Obsidian Stealth</span></p>
               <p class="text-[11px] text-stone-400">深邃啞光 · 鈦空黑曜 · 奢華暗色</p>
@@ -369,12 +350,9 @@
           <span class="theme-check text-amber-500 font-bold text-sm hidden">✓</span>
         </button>
 
-        <!-- Theme 4: 莫蘭迪霧藍 -->
         <button onclick="setTheme('mist')" class="theme-card w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all text-left" data-theme-name="mist">
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sky-400 shadow-sm" style="background: linear-gradient(135deg, #1E293B, #334155); border: 1px solid #38BDF8;">
-              🪞
-            </div>
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sky-400 shadow-sm" style="background: linear-gradient(135deg, #1E293B, #334155); border: 1px solid #38BDF8;">🪞</div>
             <div>
               <p class="text-sm font-bold text-slate-900 dark:text-white">莫蘭迪霧藍 <span class="text-xs font-serif font-normal text-slate-500">Morandi Mist</span></p>
               <p class="text-[11px] text-slate-500">低飽和晨霧 · 冰藍質感 · 清澈純粹</p>
@@ -382,14 +360,13 @@
           </div>
           <span class="theme-check text-sky-600 font-bold text-sm hidden">✓</span>
         </button>
-
       </div>
     </div>
   </div>
 
-  <!-- 2. Transaction Add/Edit Modal -->
+  <!-- 2. Transaction Add/Edit Modal (With Multi-Currency Support & Live Exchange Converter) -->
   <div id="txModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 transition-opacity duration-200">
-    <div class="bg-[var(--card-bg)] w-full max-w-md rounded-t-[32px] sm:rounded-3xl p-6 modal-sheet transform translate-y-full border border-[var(--card-border)] shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto no-scrollbar">
+    <div class="bg-[var(--card-bg)] w-full max-w-md rounded-t-[32px] sm:rounded-3xl p-6 modal-sheet transform translate-y-full border border-[var(--card-border)] shadow-2xl space-y-4 max-h-[94vh] overflow-y-auto no-scrollbar">
       
       <div class="w-12 h-1.5 bg-stone-300 rounded-full mx-auto opacity-60"></div>
       
@@ -401,45 +378,66 @@
       <!-- Smart Input & Voice -->
       <div class="space-y-1.5">
         <div class="flex gap-2">
-          <input type="text" id="smartInput" placeholder="💡 智慧解析 (如: 午餐 麥當勞 150)" class="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-accent)]">
+          <input type="text" id="smartInput" placeholder="💡 智慧解析 (如: 日本藥妝 5000 JPY)" class="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-accent)]">
           <button onclick="parseSmartInput()" id="btnSmartParse" class="px-3 py-2 bg-[var(--brand-accent)] text-white text-xs rounded-xl font-medium shadow-sm hover:opacity-90">解析</button>
           <button onclick="startVoiceRecognition()" id="btnVoice" class="px-3 py-2 bg-[var(--card-border)] text-[var(--text-main)] text-xs rounded-xl font-medium hover:opacity-80" title="語音輸入">🎙️</button>
         </div>
         <p id="voiceHint" class="text-[10px] text-[var(--text-sub)] pl-1 hidden text-emerald-600">正在聆聽... 請說話 (例如: 午餐 150)</p>
       </div>
 
-      <form id="txForm" onsubmit="handleSaveTransaction(event)" class="space-y-4 pt-1">
+      <form id="txForm" onsubmit="handleSaveTransaction(event)" class="space-y-3.5 pt-1">
         <input type="hidden" id="txId">
 
-        <!-- Amount -->
-        <div>
-          <label id="lblAmount" class="block text-xs font-semibold text-[var(--text-sub)] mb-1">金額 (NT$)</label>
-          <div class="relative">
-            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--brand-accent)]">NT$</span>
-            <input type="number" step="any" id="txAmount" required placeholder="0" class="w-full pl-12 pr-4 py-3 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] font-bold text-xl num-font focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]">
+        <!-- Multi-Currency Input & Conversion Card -->
+        <div class="p-3.5 rounded-2xl border border-[var(--card-border)] bg-[var(--bg-main)] space-y-2.5">
+          <div class="flex justify-between items-center">
+            <label id="lblInputCurrency" class="text-xs font-bold text-[var(--text-main)]">消費貨幣與金額</label>
+            <!-- Currency selector dropdown -->
+            <select id="txCurrency" onchange="onCurrencyChange()" class="text-xs font-semibold px-2.5 py-1 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] focus:outline-none cursor-pointer">
+              <!-- Options populated dynamically -->
+            </select>
           </div>
+
+          <!-- Input Amount -->
+          <div class="relative">
+            <span id="inputCurrencySymbol" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--brand-accent)]">NT$</span>
+            <input type="number" step="any" id="txOriginalAmount" oninput="calculateConvertedAmount()" required placeholder="0" class="w-full pl-12 pr-4 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] font-bold text-xl num-font focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]">
+          </div>
+
           <!-- Quick Amount Buttons -->
-          <div class="flex gap-1.5 mt-2">
+          <div class="flex gap-1.5">
             <button type="button" onclick="addAmount(50)" class="flex-1 py-1 text-xs font-medium rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-sub)] hover:text-[var(--text-main)]">+50</button>
             <button type="button" onclick="addAmount(100)" class="flex-1 py-1 text-xs font-medium rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-sub)] hover:text-[var(--text-main)]">+100</button>
             <button type="button" onclick="addAmount(500)" class="flex-1 py-1 text-xs font-medium rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-sub)] hover:text-[var(--text-main)]">+500</button>
             <button type="button" onclick="addAmount(1000)" class="flex-1 py-1 text-xs font-medium rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-sub)] hover:text-[var(--text-main)]">+1000</button>
           </div>
+
+          <!-- Exchange Rate & Converted Result Box (Shown when spending in foreign currency) -->
+          <div id="exchangeRateBox" class="hidden pt-2 border-t border-[var(--card-border)] text-xs flex justify-between items-center">
+            <div>
+              <span id="lblLiveRate" class="text-[11px] text-[var(--text-sub)]">即時匯率:</span>
+              <span id="rateDisplay" class="font-mono font-semibold text-[var(--text-main)] ml-1">1 JPY ≈ 0.208 TWD</span>
+            </div>
+            <div class="text-right">
+              <span id="lblConvertedBase" class="text-[11px] text-[var(--text-sub)]">折合基準:</span>
+              <strong id="convertedBaseDisplay" class="text-sm font-bold text-[var(--brand-accent)] num-font ml-1">NT$ 0</strong>
+            </div>
+          </div>
+          <!-- Hidden Base Amount Input to save in DB -->
+          <input type="hidden" id="txAmount" required>
         </div>
 
         <!-- Categories Grid -->
         <div>
           <label id="lblCategory" class="block text-xs font-semibold text-[var(--text-sub)] mb-1.5">消費類別</label>
-          <div class="grid grid-cols-3 gap-2" id="categorySelectionGrid">
-            <!-- Dynamic Category Buttons -->
-          </div>
+          <div class="grid grid-cols-3 gap-2" id="categorySelectionGrid"></div>
           <input type="hidden" id="txCategory" value="餐飲" required>
         </div>
 
         <!-- Note / Merchant -->
         <div>
           <label id="lblNote" class="block text-xs font-semibold text-[var(--text-sub)] mb-1">店家 / 備註</label>
-          <input type="text" id="txNote" placeholder="例如：麥當勞、全聯、加油" class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] text-xs focus:outline-none focus:ring-1 focus:ring-[var(--brand-accent)]">
+          <input type="text" id="txNote" placeholder="例如：麥當勞、全聯、免稅店" class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] text-xs focus:outline-none focus:ring-1 focus:ring-[var(--brand-accent)]">
         </div>
 
         <!-- Date & Time -->
@@ -484,26 +482,40 @@
     </div>
   </div>
 
-  <!-- 3. Supabase & Budget Settings Modal -->
+  <!-- 3. Supabase & Currency Settings Modal -->
   <div id="settingsModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 transition-opacity duration-200">
     <div class="bg-[var(--card-bg)] w-full max-w-md rounded-t-[32px] sm:rounded-3xl p-6 modal-sheet transform translate-y-full border border-[var(--card-border)] shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="w-12 h-1.5 bg-stone-300 rounded-full mx-auto opacity-60"></div>
       
       <div class="flex justify-between items-center">
-        <h3 id="lblSettingsTitle" class="text-base font-bold text-[var(--text-main)]">系統設定</h3>
+        <h3 id="lblSettingsTitle" class="text-base font-bold text-[var(--text-main)]">系統與貨幣設定</h3>
         <button onclick="closeSettingsModal()" class="text-stone-400 hover:text-stone-600 p-1">✕</button>
       </div>
 
       <form onsubmit="handleSaveSettings(event)" class="space-y-4 pt-1">
+        
+        <!-- Base Currency Setting -->
+        <div>
+          <label id="lblBaseCurrencySetting" class="block text-xs font-semibold text-[var(--text-sub)] mb-1">主要基準貨幣 (Base Currency)</label>
+          <select id="settingBaseCurrency" onchange="onBaseCurrencyChange()" class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] text-xs font-bold focus:outline-none">
+            <!-- Populated via JS -->
+          </select>
+          <div class="flex justify-between items-center mt-1.5 text-[11px] text-[var(--text-sub)]">
+            <span id="rateUpdatedText">匯率狀態: 已連接即時匯率庫</span>
+            <button type="button" onclick="fetchLiveExchangeRates(true)" class="text-[var(--brand-accent)] font-semibold hover:underline">⟳ 立即更新匯率</button>
+          </div>
+        </div>
+
         <!-- Monthly Budget -->
         <div>
-          <label id="lblMonthlyBudgetSetting" class="block text-xs font-semibold text-[var(--text-sub)] mb-1">每月目標預算 (NT$)</label>
+          <label id="lblMonthlyBudgetSetting" class="block text-xs font-semibold text-[var(--text-sub)] mb-1">每月目標預算</label>
           <input type="number" id="settingBudget" class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm font-bold num-font focus:outline-none">
         </div>
 
+        <!-- Supabase Cloud Config -->
         <div class="border-t border-[var(--card-border)] pt-3">
           <h4 id="lblSupabaseSyncTitle" class="text-xs font-bold text-[var(--text-main)] mb-1">☁️ Supabase 雲端資料庫串接</h4>
-          <p id="lblSupabaseSyncDesc" class="text-[11px] text-[var(--text-sub)] mb-3">填入後可啟用跨裝置即時同步與 iOS 捷徑 API 記帳。</p>
+          <p id="lblSupabaseSyncDesc" class="text-[11px] text-[var(--text-sub)] mb-3">填入後啟用多裝置雲端即時同步與 iOS 捷徑自動化。</p>
 
           <div class="space-y-2.5">
             <div>
@@ -531,7 +543,39 @@
 
   <!-- ==================== JAVASCRIPT LOGIC ==================== -->
   <script>
-    // Categories Palette (Curated High-End Morandi Palette)
+    // Supported Currencies
+    const CURRENCIES = {
+      'TWD': { symbol: 'NT$', name: '新台幣 (TWD)', en: 'New Taiwan Dollar (TWD)', flag: '🇹🇼' },
+      'USD': { symbol: '$', name: '美元 (USD)', en: 'US Dollar (USD)', flag: '🇺🇸' },
+      'JPY': { symbol: '¥', name: '日圓 (JPY)', en: 'Japanese Yen (JPY)', flag: '🇯🇵' },
+      'EUR': { symbol: '€', name: '歐元 (EUR)', en: 'Euro (EUR)', flag: '🇪🇺' },
+      'GBP': { symbol: '£', name: '英鎊 (GBP)', en: 'British Pound (GBP)', flag: '🇬🇧' },
+      'HKD': { symbol: 'HK$', name: '港幣 (HKD)', en: 'Hong Kong Dollar (HKD)', flag: '🇭🇰' },
+      'CNY': { symbol: '¥', name: '人民幣 (CNY)', en: 'Chinese Yuan (CNY)', flag: '🇨🇳' },
+      'KRW': { symbol: '₩', name: '韓元 (KRW)', en: 'South Korean Won (KRW)', flag: '🇰🇷' },
+      'SGD': { symbol: 'S$', name: '新加坡幣 (SGD)', en: 'Singapore Dollar (SGD)', flag: '🇸🇬' },
+      'AUD': { symbol: 'A$', name: '澳幣 (AUD)', en: 'Australian Dollar (AUD)', flag: '🇦🇺' },
+      'CAD': { symbol: 'C$', name: '加幣 (CAD)', en: 'Canadian Dollar (CAD)', flag: '🇨🇦' },
+      'THB': { symbol: '฿', name: '泰銖 (THB)', en: 'Thai Baht (THB)', flag: '🇹🇭' }
+    };
+
+    // Default Fallback Rates (Base: TWD)
+    let exchangeRates = {
+      'TWD': 1,
+      'USD': 32.2,
+      'JPY': 0.21,
+      'EUR': 35.1,
+      'GBP': 41.2,
+      'HKD': 4.12,
+      'CNY': 4.45,
+      'KRW': 0.024,
+      'SGD': 24.3,
+      'AUD': 21.5,
+      'CAD': 23.8,
+      'THB': 0.92
+    };
+
+    // Curated Luxury Themes & Color Palettes
     const THEME_PALETTES = {
       oat: ['#C2785C', '#5B7C99', '#B07D8B', '#8E829F', '#689680', '#9A9289'],
       sage: ['#D97757', '#4E7D96', '#9E6D85', '#7A729E', '#3D7A68', '#7E8582'],
@@ -578,7 +622,7 @@
         mobile: '行動支付',
         addTxTitle: '新增消費紀錄',
         editTxTitle: '編輯消費紀錄',
-        amount: '金額 (NT$)',
+        inputCurrency: '消費貨幣與金額',
         category: '消費類別',
         note: '店家 / 備註',
         date: '日期',
@@ -586,19 +630,22 @@
         payment: '支付方式',
         save: '儲存紀錄',
         delete: '刪除紀錄',
-        smartPlaceholder: '💡 智慧解析 (如: 午餐 麥當勞 150)',
+        smartPlaceholder: '💡 智慧解析 (如: 日本藥妝 5000 JPY)',
         parseBtn: '解析',
-        listening: '正在聆聽... 請說話 (例如: 午餐 150)',
-        settingsTitle: '系統設定',
-        monthlyBudgetSetting: '每月目標預算 (NT$)',
+        listening: '正在聆聽... 請說話',
+        settingsTitle: '系統與貨幣設定',
+        baseCurrencySetting: '主要基準貨幣 (Base Currency)',
+        monthlyBudgetSetting: '每月目標預算',
         saveSettings: '儲存設定並同步',
         noData: '尚無消費紀錄，點擊右下角「+」開始記帳！',
         saveSuccess: '紀錄已成功儲存 ✨',
         deleteSuccess: '紀錄已刪除 🗑️',
-        syncSuccess: '雲端同步完成 ☁️',
+        syncSuccess: '設定與同步完成 ☁️',
         topCategory: '最大宗',
         themeTitle: '風格美學配色',
-        themeDesc: '選擇專屬於你的高貴極簡主題'
+        themeDesc: '選擇專屬於你的高貴極簡主題',
+        liveRate: '即時匯率:',
+        convertedBase: '折合基準:'
       },
       'en': {
         brand: 'Ordine',
@@ -628,7 +675,7 @@
         mobile: 'Mobile Pay',
         addTxTitle: 'Add Transaction',
         editTxTitle: 'Edit Transaction',
-        amount: 'Amount (NT$)',
+        inputCurrency: 'Currency & Amount',
         category: 'Category',
         note: 'Note / Merchant',
         date: 'Date',
@@ -636,25 +683,29 @@
         payment: 'Payment Method',
         save: 'Save Transaction',
         delete: 'Delete',
-        smartPlaceholder: '💡 Smart NLP (e.g. Lunch Burger 150 card)',
+        smartPlaceholder: '💡 Smart NLP (e.g. Amazon 50 USD)',
         parseBtn: 'Parse',
-        listening: 'Listening... Please speak (e.g. Lunch 150)',
-        settingsTitle: 'Settings',
-        monthlyBudgetSetting: 'Monthly Budget Goal (NT$)',
+        listening: 'Listening... Please speak',
+        settingsTitle: 'Settings & Currency',
+        baseCurrencySetting: 'Base Currency',
+        monthlyBudgetSetting: 'Monthly Budget Goal',
         saveSettings: 'Save & Sync',
         noData: 'No transactions yet. Tap the "+" button to begin!',
         saveSuccess: 'Saved successfully ✨',
         deleteSuccess: 'Transaction deleted 🗑️',
-        syncSuccess: 'Cloud synced ☁️',
+        syncSuccess: 'Settings synced ☁️',
         topCategory: 'Top Spend',
         themeTitle: 'Theme Aesthetics',
-        themeDesc: 'Select your preferred quiet luxury palette'
+        themeDesc: 'Select your preferred quiet luxury palette',
+        liveRate: 'Exchange Rate:',
+        convertedBase: 'Base Equiv:'
       }
     };
 
     // State Variables
     let currentLang = localStorage.getItem('ordine_lang') || 'zh-TW';
     let currentTheme = localStorage.getItem('ordine_theme') || 'oat';
+    let baseCurrency = localStorage.getItem('ordine_base_curr') || 'TWD';
     let currentFilter = 'ALL';
     let transactions = [];
     let chartInstance = null;
@@ -662,6 +713,7 @@
 
     let appSettings = {
       budget: 20000,
+      baseCurrency: 'TWD',
       supaUrl: '',
       supaKey: ''
     };
@@ -670,11 +722,106 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadSettings();
       applyTheme(currentTheme);
+      initCurrencyDropdowns();
       initDateDisplay();
       initCategoryGrid();
       applyLanguage(currentLang);
+      fetchLiveExchangeRates(false);
       loadTransactions();
     });
+
+    // Fetch Live Exchange Rates (Free open API)
+    async function fetchLiveExchangeRates(notify = false) {
+      try {
+        const res = await fetch(`https://open.er-api.com/v6/latest/${baseCurrency}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.rates) {
+            // Save rates relative to Base Currency
+            // If data.rates[X] is how much X 1 Base Currency buys, then 1 X = (1 / data.rates[X]) Base Currency
+            const newRates = {};
+            Object.keys(CURRENCIES).forEach(code => {
+              if (data.rates[code]) {
+                newRates[code] = 1 / data.rates[code];
+              }
+            });
+            newRates[baseCurrency] = 1;
+            exchangeRates = newRates;
+            localStorage.setItem('ordine_rates_cache', JSON.stringify({
+              time: Date.now(),
+              base: baseCurrency,
+              rates: exchangeRates
+            }));
+            document.getElementById('rateUpdatedText').textContent = currentLang === 'zh-TW' ? '匯率狀態: 已同步最新即時匯率 ✓' : 'Rates: Live rates updated ✓';
+            if (notify) showToast(currentLang === 'zh-TW' ? '即時匯率更新成功 💱' : 'Live exchange rates updated 💱');
+          }
+        }
+      } catch (e) {
+        console.warn('Using cached or fallback exchange rates', e);
+        const cached = localStorage.getItem('ordine_rates_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed.base === baseCurrency) exchangeRates = parsed.rates;
+        }
+      }
+    }
+
+    // Currency UI Helpers
+    function initCurrencyDropdowns() {
+      const txSelect = document.getElementById('txCurrency');
+      const baseSelect = document.getElementById('settingBaseCurrency');
+      
+      const optionsHtml = Object.keys(CURRENCIES).map(code => {
+        const c = CURRENCIES[code];
+        const name = currentLang === 'zh-TW' ? c.name : c.en;
+        return `<option value="${code}">${c.flag} ${name}</option>`;
+      }).join('');
+
+      txSelect.innerHTML = optionsHtml;
+      baseSelect.innerHTML = optionsHtml;
+
+      txSelect.value = baseCurrency;
+      baseSelect.value = baseCurrency;
+      updateBaseCurrencySymbols();
+    }
+
+    function updateBaseCurrencySymbols() {
+      const symbol = CURRENCIES[baseCurrency]?.symbol || 'NT$';
+      document.getElementById('baseCurrencySymbol1').textContent = symbol;
+      document.getElementById('inputCurrencySymbol').textContent = CURRENCIES[document.getElementById('txCurrency').value]?.symbol || symbol;
+    }
+
+    function onCurrencyChange() {
+      const selectedCurr = document.getElementById('txCurrency').value;
+      document.getElementById('inputCurrencySymbol').textContent = CURRENCIES[selectedCurr]?.symbol || '$';
+      calculateConvertedAmount();
+    }
+
+    function onBaseCurrencyChange() {
+      // triggered inside settings
+    }
+
+    function calculateConvertedAmount() {
+      const selectedCurr = document.getElementById('txCurrency').value;
+      const originalAmount = Number(document.getElementById('txOriginalAmount').value || 0);
+      const rateBox = document.getElementById('exchangeRateBox');
+      const rateDisplay = document.getElementById('rateDisplay');
+      const convertedDisplay = document.getElementById('convertedBaseDisplay');
+
+      const rate = exchangeRates[selectedCurr] || 1;
+      const converted = originalAmount * rate;
+      
+      document.getElementById('txAmount').value = Math.round(converted * 100) / 100;
+
+      if (selectedCurr !== baseCurrency) {
+        rateBox.classList.remove('hidden');
+        const formattedRate = rate >= 1 ? rate.toFixed(2) : rate.toFixed(4);
+        rateDisplay.textContent = `1 ${selectedCurr} ≈ ${formattedRate} ${baseCurrency}`;
+        convertedDisplay.textContent = `${CURRENCIES[baseCurrency].symbol} ${Math.round(converted).toLocaleString()}`;
+      } else {
+        rateBox.classList.add('hidden');
+      }
+    }
 
     // Theme Management
     function setTheme(themeName) {
@@ -692,19 +839,12 @@
         document.documentElement.setAttribute('data-theme', themeName);
       }
 
-      // Update Meta Theme Color for mobile status bars
       const metaTheme = document.getElementById('meta-theme-color');
-      if (themeName === 'obsidian') {
-        metaTheme.setAttribute('content', '#0C0E12');
-      } else if (themeName === 'sage') {
-        metaTheme.setAttribute('content', '#F4F6F4');
-      } else if (themeName === 'mist') {
-        metaTheme.setAttribute('content', '#F1F4F8');
-      } else {
-        metaTheme.setAttribute('content', '#F8F6F1');
-      }
+      if (themeName === 'obsidian') metaTheme.setAttribute('content', '#0C0E12');
+      else if (themeName === 'sage') metaTheme.setAttribute('content', '#F4F6F4');
+      else if (themeName === 'mist') metaTheme.setAttribute('content', '#F1F4F8');
+      else metaTheme.setAttribute('content', '#F8F6F1');
 
-      // Update Theme modal checkmarks
       document.querySelectorAll('.theme-card').forEach(card => {
         const name = card.getAttribute('data-theme-name');
         const check = card.querySelector('.theme-check');
@@ -717,7 +857,6 @@
         }
       });
 
-      // Update Chart with new luxury palette
       updateDashboard();
     }
 
@@ -742,6 +881,7 @@
       currentLang = currentLang === 'zh-TW' ? 'en' : 'zh-TW';
       localStorage.setItem('ordine_lang', currentLang);
       applyLanguage(currentLang);
+      initCurrencyDropdowns();
       showToast(currentLang === 'zh-TW' ? '已切換為 繁體中文' : 'Switched to English');
     }
 
@@ -757,7 +897,7 @@
       document.getElementById('exportText').textContent = t.exportCsv;
       document.getElementById('smartInput').placeholder = t.smartPlaceholder;
       document.getElementById('btnSmartParse').textContent = t.parseBtn;
-      document.getElementById('lblAmount').textContent = t.amount;
+      document.getElementById('lblInputCurrency').textContent = t.inputCurrency;
       document.getElementById('lblCategory').textContent = t.category;
       document.getElementById('lblNote').textContent = t.note;
       document.getElementById('lblDate').textContent = t.date;
@@ -766,19 +906,20 @@
       document.getElementById('btnSaveTx').textContent = t.save;
       document.getElementById('btnDeleteTx').textContent = t.delete;
       document.getElementById('lblSettingsTitle').textContent = t.settingsTitle;
+      document.getElementById('lblBaseCurrencySetting').textContent = t.baseCurrencySetting;
       document.getElementById('lblMonthlyBudgetSetting').textContent = t.monthlyBudgetSetting;
       document.getElementById('btnSaveSettings').textContent = t.saveSettings;
       document.getElementById('chartCenterLabel').textContent = t.topCategory;
       document.getElementById('lblThemeModalTitle').textContent = t.themeTitle;
       document.getElementById('lblThemeModalDesc').textContent = t.themeDesc;
+      document.getElementById('lblLiveRate').textContent = t.liveRate;
+      document.getElementById('lblConvertedBase').textContent = t.convertedBase;
 
-      // Update category labels inside pills and buttons
       document.querySelectorAll('.cat-label').forEach(el => {
         const key = el.getAttribute('data-key');
         if (t[key]) el.textContent = t[key];
       });
 
-      // Update payment method labels
       document.querySelectorAll('.pay-label').forEach(el => {
         const key = el.getAttribute('data-key');
         if (t[key]) el.textContent = t[key];
@@ -794,7 +935,6 @@
     function initCategoryGrid() {
       const grid = document.getElementById('categorySelectionGrid');
       const currentCat = document.getElementById('txCategory').value || '餐飲';
-      const t = I18N[currentLang];
 
       grid.innerHTML = CATEGORIES.map(cat => {
         const isSelected = cat.key === currentCat;
@@ -844,19 +984,31 @@
       if (saved) {
         appSettings = JSON.parse(saved);
       }
-      document.getElementById('settingBudget').value = appSettings.budget;
+      baseCurrency = appSettings.baseCurrency || localStorage.getItem('ordine_base_curr') || 'TWD';
+      document.getElementById('settingBudget').value = appSettings.budget || 20000;
       document.getElementById('settingSupaUrl').value = appSettings.supaUrl || '';
       document.getElementById('settingSupaKey').value = appSettings.supaKey || '';
+      document.getElementById('settingBaseCurrency').value = baseCurrency;
       updateSyncStatusUI();
     }
 
     function handleSaveSettings(e) {
       e.preventDefault();
+      const oldBase = baseCurrency;
+      baseCurrency = document.getElementById('settingBaseCurrency').value;
+      appSettings.baseCurrency = baseCurrency;
       appSettings.budget = Number(document.getElementById('settingBudget').value) || 20000;
       appSettings.supaUrl = document.getElementById('settingSupaUrl').value.trim();
       appSettings.supaKey = document.getElementById('settingSupaKey').value.trim();
+      
+      localStorage.setItem('ordine_base_curr', baseCurrency);
       localStorage.setItem('ordine_settings', JSON.stringify(appSettings));
+      
       updateSyncStatusUI();
+      updateBaseCurrencySymbols();
+      if (oldBase !== baseCurrency) {
+        fetchLiveExchangeRates(true);
+      }
       closeSettingsModal();
       loadTransactions();
       showToast(I18N[currentLang].syncSuccess);
@@ -874,7 +1026,7 @@
       }
     }
 
-    // Transactions API & Storage
+    // Transactions Storage & Supabase Sync
     async function loadTransactions() {
       if (appSettings.supaUrl && appSettings.supaKey) {
         try {
@@ -889,7 +1041,7 @@
             localStorage.setItem('ordine_tx_cache', JSON.stringify(transactions));
           }
         } catch (err) {
-          console.warn('Supabase fetch failed, fallback to local', err);
+          console.warn('Supabase fetch fallback to local cache', err);
           transactions = JSON.parse(localStorage.getItem('ordine_tx_cache') || '[]');
         }
       } else {
@@ -916,7 +1068,6 @@
           console.error('Supabase save error', err);
         }
       }
-      // Save local
       const idx = transactions.findIndex(t => t.id === tx.id);
       if (idx >= 0) transactions[idx] = tx;
       else transactions.unshift(tx);
@@ -948,19 +1099,19 @@
       renderTransactions();
     }
 
-    // Dashboard Calculations & Chart
+    // Dashboard & Chart Calculations
     function updateDashboard() {
       const now = new Date();
       const currentYear = now.getFullYear();
       const currentMonth = now.getMonth() + 1;
       const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
       const daysRemaining = daysInMonth - now.getDate();
+      const symbol = CURRENCIES[baseCurrency]?.symbol || 'NT$';
 
       const t = I18N[currentLang];
       document.getElementById('daysRemainingText').textContent = t.daysRemaining(daysRemaining);
-      document.getElementById('budgetGoalDisplay').textContent = `NT$ ${Number(appSettings.budget).toLocaleString()}`;
+      document.getElementById('budgetGoalDisplay').textContent = `${symbol} ${Number(appSettings.budget).toLocaleString()}`;
 
-      // Filter this month txs
       const monthlyTxs = transactions.filter(tx => {
         if (!tx.date) return false;
         const d = new Date(tx.date);
@@ -971,7 +1122,7 @@
       document.getElementById('totalExpenseDisplay').textContent = totalMonthlyExpense.toLocaleString();
 
       const remainingBudget = Number(appSettings.budget) - totalMonthlyExpense;
-      document.getElementById('remainingBudgetDisplay').textContent = `NT$ ${remainingBudget.toLocaleString()}`;
+      document.getElementById('remainingBudgetDisplay').textContent = `${symbol} ${remainingBudget.toLocaleString()}`;
 
       const budgetPct = Math.min(100, Math.round((totalMonthlyExpense / (appSettings.budget || 1)) * 100));
       document.getElementById('budgetPercentDisplay').textContent = `${budgetPct}%`;
@@ -991,13 +1142,13 @@
 
       document.getElementById('txCountBadge').textContent = t.totalTxs(transactions.length);
 
-      // Render Chart
       renderChart(monthlyTxs);
     }
 
     function renderChart(txs) {
       const catTotals = { '餐飲': 0, '交通': 0, '購物': 0, '娛樂': 0, '日常': 0, '其他': 0 };
       let totalAmount = 0;
+      const symbol = CURRENCIES[baseCurrency]?.symbol || 'NT$';
 
       txs.forEach(tx => {
         const cat = catTotals[tx.category] !== undefined ? tx.category : '其他';
@@ -1009,19 +1160,15 @@
       const currentPalette = THEME_PALETTES[currentTheme] || THEME_PALETTES.oat;
       const dataValues = CATEGORIES.map(c => catTotals[c.key]);
 
-      // Find top category
-      let topCat = '餐飲';
       let maxVal = 0;
       CATEGORIES.forEach(c => {
         if (catTotals[c.key] > maxVal) {
           maxVal = catTotals[c.key];
-          topCat = c.key;
         }
       });
       const topPct = totalAmount > 0 ? Math.round((maxVal / totalAmount) * 100) : 0;
       document.getElementById('chartCenterPercent').textContent = `${topPct}%`;
 
-      // Legend Render
       const legendContainer = document.getElementById('chartLegend');
       legendContainer.innerHTML = CATEGORIES.map((c, i) => {
         const amt = catTotals[c.key];
@@ -1035,13 +1182,12 @@
             </div>
             <div class="text-right">
               <span class="font-semibold num-font text-xs text-[var(--text-main)]">${pct}%</span>
-              <span class="text-[10px] text-[var(--text-sub)] pl-1">NT$${amt.toLocaleString()}</span>
+              <span class="text-[10px] text-[var(--text-sub)] pl-1">${symbol}${amt.toLocaleString()}</span>
             </div>
           </div>
         `;
       }).join('');
 
-      // Chart.js instance
       const ctx = document.getElementById('categoryChart').getContext('2d');
       if (chartInstance) chartInstance.destroy();
 
@@ -1066,7 +1212,7 @@
             tooltip: {
               enabled: totalAmount > 0,
               callbacks: {
-                label: (item) => ` ${item.label}: NT$ ${Number(item.raw).toLocaleString()}`
+                label: (item) => ` ${item.label}: ${symbol} ${Number(item.raw).toLocaleString()}`
               }
             }
           }
@@ -1078,6 +1224,7 @@
     function renderTransactions() {
       const container = document.getElementById('transactionsList');
       const t = I18N[currentLang];
+      const baseSym = CURRENCIES[baseCurrency]?.symbol || 'NT$';
 
       const filtered = transactions.filter(tx => {
         if (currentFilter === 'ALL') return true;
@@ -1100,6 +1247,11 @@
         const currentPalette = THEME_PALETTES[currentTheme] || THEME_PALETTES.oat;
         const badgeColor = currentPalette[catInfo.colorIdx];
 
+        // Foreign currency badge if recorded in foreign currency
+        const foreignInfo = (tx.currency && tx.currency !== baseCurrency && tx.original_amount) 
+          ? `<span class="text-[10px] text-[var(--text-sub)] font-mono">(${CURRENCIES[tx.currency]?.symbol || tx.currency} ${Number(tx.original_amount).toLocaleString()})</span>`
+          : '';
+
         return `
           <div onclick="openEditModal('${tx.id}')" class="custom-card p-3.5 rounded-2xl flex items-center justify-between active:scale-[0.99] transition-all cursor-pointer hover:border-[var(--brand-accent)]">
             <div class="flex items-center gap-3">
@@ -1107,15 +1259,18 @@
                 ${catInfo.icon}
               </div>
               <div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
                   <h4 class="text-xs font-bold text-[var(--text-main)]">${tx.note || catName}</h4>
                   <span class="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 dark:bg-white/10 text-[var(--text-sub)]">${tx.payment_method || '現金'}</span>
                 </div>
-                <p class="text-[11px] text-[var(--text-sub)] mt-0.5">${tx.date || ''} ${tx.time || ''}</p>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <p class="text-[11px] text-[var(--text-sub)]">${tx.date || ''} ${tx.time || ''}</p>
+                  ${foreignInfo}
+                </div>
               </div>
             </div>
             <div class="text-right">
-              <span class="font-bold text-sm text-[var(--text-main)] num-font">- NT$ ${Number(tx.amount).toLocaleString()}</span>
+              <span class="font-bold text-sm text-[var(--text-main)] num-font">- ${baseSym} ${Number(tx.amount).toLocaleString()}</span>
             </div>
           </div>
         `;
@@ -1139,10 +1294,12 @@
       const t = I18N[currentLang];
       document.getElementById('modalTitle').textContent = t.addTxTitle;
       document.getElementById('txId').value = '';
+      document.getElementById('txOriginalAmount').value = '';
       document.getElementById('txAmount').value = '';
       document.getElementById('txNote').value = '';
       document.getElementById('smartInput').value = '';
       document.getElementById('btnDeleteTx').classList.add('hidden');
+      document.getElementById('txCurrency').value = baseCurrency;
       
       const now = new Date();
       document.getElementById('txDate').value = now.toISOString().split('T')[0];
@@ -1150,6 +1307,7 @@
 
       selectCategory('餐飲');
       setPaymentMethod('現金');
+      onCurrencyChange();
 
       const modal = document.getElementById('txModal');
       modal.classList.remove('hidden');
@@ -1166,7 +1324,12 @@
       const t = I18N[currentLang];
       document.getElementById('modalTitle').textContent = t.editTxTitle;
       document.getElementById('txId').value = tx.id;
+      
+      const curr = tx.currency || baseCurrency;
+      document.getElementById('txCurrency').value = curr;
+      document.getElementById('txOriginalAmount').value = tx.original_amount || tx.amount;
       document.getElementById('txAmount').value = tx.amount;
+      
       document.getElementById('txNote').value = tx.note || '';
       document.getElementById('txDate').value = tx.date || '';
       document.getElementById('txTime').value = tx.time || '';
@@ -1174,6 +1337,7 @@
 
       selectCategory(tx.category || '餐飲');
       setPaymentMethod(tx.payment_method || '現金');
+      onCurrencyChange();
 
       const modal = document.getElementById('txModal');
       modal.classList.remove('hidden');
@@ -1206,18 +1370,34 @@
       setTimeout(() => modal.classList.add('hidden'), 200);
     }
 
-    // Save & Delete Form Handlers
+    // Save & Delete
     function handleSaveTransaction(e) {
       e.preventDefault();
+      calculateConvertedAmount();
+
       const id = document.getElementById('txId').value || ('tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6));
-      const amount = Number(document.getElementById('txAmount').value);
+      const currency = document.getElementById('txCurrency').value;
+      const original_amount = Number(document.getElementById('txOriginalAmount').value);
+      const amount = Number(document.getElementById('txAmount').value) || original_amount;
       const category = document.getElementById('txCategory').value;
       const note = document.getElementById('txNote').value.trim();
       const date = document.getElementById('txDate').value;
       const time = document.getElementById('txTime').value;
       const payment_method = document.getElementById('txPayment').value;
 
-      const tx = { id, amount, category, note, date, time, payment_method, updated_at: new Date().toISOString() };
+      const tx = {
+        id,
+        amount,
+        original_amount,
+        currency,
+        category,
+        note,
+        date,
+        time,
+        payment_method,
+        updated_at: new Date().toISOString()
+      };
+
       saveTransaction(tx);
       closeTxModal();
       showToast(I18N[currentLang].saveSuccess);
@@ -1232,20 +1412,38 @@
     }
 
     function addAmount(delta) {
-      const input = document.getElementById('txAmount');
+      const input = document.getElementById('txOriginalAmount');
       const val = Number(input.value || 0);
       input.value = val + delta;
+      calculateConvertedAmount();
     }
 
-    // Smart Text NLP & Voice Recognition
+    // Smart Multi-Currency NLP & Voice
     function parseSmartInput() {
       const text = document.getElementById('smartInput').value.trim();
       if (!text) return;
 
-      // Extract amount
+      // Detect Currency
+      let detectedCurr = baseCurrency;
+      if (/日幣|日圓|jpy|yen/i.test(text)) detectedCurr = 'JPY';
+      else if (/美金|美元|usd|dollar/i.test(text)) detectedCurr = 'USD';
+      else if (/歐元|eur|euro/i.test(text)) detectedCurr = 'EUR';
+      else if (/英鎊|gbp|pound/i.test(text)) detectedCurr = 'GBP';
+      else if (/韓元|韓幣|krw|won/i.test(text)) detectedCurr = 'KRW';
+      else if (/港幣|hkd/i.test(text)) detectedCurr = 'HKD';
+      else if (/人民幣|cny|rmb/i.test(text)) detectedCurr = 'CNY';
+      else if (/泰銖|thb|baht/i.test(text)) detectedCurr = 'THB';
+      else if (/新幣|星幣|sgd/i.test(text)) detectedCurr = 'SGD';
+      else if (/台幣|twd|nt/i.test(text)) detectedCurr = 'TWD';
+
+      document.getElementById('txCurrency').value = detectedCurr;
+      onCurrencyChange();
+
+      // Extract Amount
       const numMatch = text.match(/(\d+(\.\d+)?)/);
       if (numMatch) {
-        document.getElementById('txAmount').value = numMatch[1];
+        document.getElementById('txOriginalAmount').value = numMatch[1];
+        calculateConvertedAmount();
       }
 
       // Extract Payment Method
@@ -1253,30 +1451,25 @@
       else if (/line pay|apple pay|街口|行動支付|mobile pay/i.test(text)) setPaymentMethod('行動支付');
       else if (/現金|cash/i.test(text)) setPaymentMethod('現金');
 
-      // Extract Category & Note
+      // Extract Category
       let matchedCat = null;
-      if (/早餐|午餐|晚餐|飯|麵|咖啡|星巴克|麥當勞|肯德基|喝|吃|餐廳|food|lunch|dinner|breakfast|coffee|mcdonald/i.test(text)) {
-        matchedCat = '餐飲';
-      } else if (/捷運|公車|計程車|uber|高鐵|火車|加油|停車|交通|transport|taxi|gas|metro|bus/i.test(text)) {
-        matchedCat = '交通';
-      } else if (/買|衣服|鞋|包|購物|全聯|家樂福|蝦皮|amazon|shop|store|clothes/i.test(text)) {
-        matchedCat = '購物';
-      } else if (/電影|劇|遊戲|蒸氣|netflix|switch|ktv|娛樂|play|game|movie/i.test(text)) {
-        matchedCat = '娛樂';
-      } else if (/水電|房租|雜物|藥|日常|生活|rent|bill|grocery|living/i.test(text)) {
-        matchedCat = '日常';
-      }
+      if (/早餐|午餐|晚餐|飯|麵|咖啡|星巴克|麥當勞|肯德基|喝|吃|餐廳|food|lunch|dinner|breakfast|coffee|mcdonald/i.test(text)) matchedCat = '餐飲';
+      else if (/捷運|公車|計程車|uber|高鐵|火車|機票|加油|停車|交通|transport|taxi|gas|metro|bus|flight/i.test(text)) matchedCat = '交通';
+      else if (/買|衣服|鞋|包|購物|藥妝|全聯|家樂福|蝦皮|amazon|shop|store|clothes|duty free/i.test(text)) matchedCat = '購物';
+      else if (/電影|劇|遊戲|蒸氣|netflix|switch|ktv|娛樂|play|game|movie/i.test(text)) matchedCat = '娛樂';
+      else if (/水電|房租|雜物|藥|日常|生活|rent|bill|grocery|living/i.test(text)) matchedCat = '日常';
 
       if (matchedCat) selectCategory(matchedCat);
 
-      // Clean remaining text for note
+      // Extract Note
       let note = text
         .replace(/(\d+(\.\d+)?)/g, '')
+        .replace(/日幣|日圓|jpy|美金|美元|usd|歐元|eur|英鎊|gbp|韓元|krw|港幣|hkd|人民幣|cny|泰銖|thb|新幣|sgd|台幣|twd|nt/gi, '')
         .replace(/信用卡|card|credit|line pay|apple pay|街口|行動支付|mobile pay|現金|cash/gi, '')
         .trim();
       if (note) document.getElementById('txNote').value = note;
 
-      showToast('智慧填入成功 ✨');
+      showToast('智慧解析成功 ✨');
     }
 
     function startVoiceRecognition() {
@@ -1309,7 +1502,7 @@
         showToast(currentLang === 'zh-TW' ? '尚無資料可匯出' : 'No data to export');
         return;
       }
-      const headers = ['ID', 'Date', 'Time', 'Category', 'Note', 'Amount', 'Payment Method'];
+      const headers = ['ID', 'Date', 'Time', 'Category', 'Note', `Amount (${baseCurrency})`, 'Original Currency', 'Original Amount', 'Payment Method'];
       const rows = transactions.map(t => [
         t.id,
         t.date || '',
@@ -1317,6 +1510,8 @@
         t.category || '',
         `"${(t.note || '').replace(/"/g, '""')}"`,
         t.amount,
+        t.currency || baseCurrency,
+        t.original_amount || t.amount,
         t.payment_method || ''
       ]);
 
@@ -1324,13 +1519,13 @@
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement('a');
       link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `Ordine_Expense_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `Ordine_Expense_${baseCurrency}_${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
 
-    // Toast Notification Helper
+    // Toast Notification
     function showToast(msg) {
       const toast = document.getElementById('toast');
       toast.textContent = msg;
