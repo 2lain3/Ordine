@@ -1,1245 +1,1343 @@
 <!DOCTYPE html>
-<html lang="zh-TW" class="h-full bg-slate-50">
+<html lang="zh-TW" class="h-full">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>歸序 Ordine - 現代簡約個人記帳 | Minimalist Expense Tracker</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>歸序 Ordine — 現代極簡個人記帳</title>
   
-  <!-- PWA & Mobile Web App Meta Tags -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="歸序 Ordine" />
-  <meta name="theme-color" content="#ffffff" />
+  <!-- PWA & Mobile Web App Meta -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="歸序 Ordine">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" id="meta-theme-color" content="#F7F5F0">
   
-  <!-- Tailwind CSS CDN -->
+  <!-- App Icons -->
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+
+  <!-- Fonts & Tailwind CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js CDN -->
+  
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Supabase Client CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
 
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          colors: {
-            brand: {
-              50: '#ecfdf5',
-              100: '#d1fae5',
-              500: '#10b981',
-              600: '#059669',
-              700: '#047857',
-            }
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans TC"', '-apple-system', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
           }
         }
       }
     }
   </script>
+
   <style>
-    /* Safe Area Padding for iPhone notch */
-    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
-    .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+    /* Theme Variables Definition */
+    :root {
+      /* Default Theme: 01. 燕麥香檳 (Champagne & Warm Oat) */
+      --bg-main: #F8F6F1;
+      --card-bg: #FFFFFF;
+      --card-border: #ECE7DF;
+      --text-main: #242220;
+      --text-sub: #7A746E;
+      --hero-bg: linear-gradient(135deg, #1C1B1A 0%, #2A2825 50%, #22201D 100%);
+      --hero-border: rgba(255, 255, 255, 0.08);
+      --hero-accent: #D4AF37;
+      --hero-glow: rgba(212, 175, 55, 0.12);
+      --brand-accent: #B38F58;
+      --brand-accent-hover: #9E7D47;
+      --fab-bg: #242220;
+      --fab-text: #FFFFFF;
+      --shadow-sm: 0 2px 10px rgba(40, 35, 30, 0.03);
+      --shadow-md: 0 8px 30px rgba(40, 35, 30, 0.06);
+    }
+
+    /* Theme 02: 🌲 靜謐墨翠 (Alpine Forest & Sage) */
+    [data-theme="sage"] {
+      --bg-main: #F4F6F4;
+      --card-bg: #FFFFFF;
+      --card-border: #DFE7E2;
+      --text-main: #14221D;
+      --text-sub: #63776F;
+      --hero-bg: linear-gradient(135deg, #0F1F1A 0%, #162C24 60%, #0E1A16 100%);
+      --hero-border: rgba(52, 211, 153, 0.15);
+      --hero-accent: #34D399;
+      --hero-glow: rgba(52, 211, 153, 0.15);
+      --brand-accent: #1B4D3E;
+      --brand-accent-hover: #143B30;
+      --fab-bg: #1B4D3E;
+      --fab-text: #FFFFFF;
+      --shadow-sm: 0 2px 10px rgba(20, 40, 30, 0.03);
+      --shadow-md: 0 8px 30px rgba(20, 40, 30, 0.06);
+    }
+
+    /* Theme 03: 🌑 極夜曜石 (Obsidian & Matte Titanium Dark) */
+    [data-theme="obsidian"] {
+      --bg-main: #0C0E12;
+      --card-bg: #14171D;
+      --card-border: #202530;
+      --text-main: #F1F4F9;
+      --text-sub: #8B95A5;
+      --hero-bg: linear-gradient(135deg, #191E28 0%, #131720 100%);
+      --hero-border: rgba(255, 255, 255, 0.1);
+      --hero-accent: #F59E0B;
+      --hero-glow: rgba(245, 158, 11, 0.12);
+      --brand-accent: #F59E0B;
+      --brand-accent-hover: #D97706;
+      --fab-bg: #F59E0B;
+      --fab-text: #0C0E12;
+      --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Theme 04: 🪞 莫蘭迪霧藍 (Morandi Mist & Slate Blue) */
+    [data-theme="mist"] {
+      --bg-main: #F1F4F8;
+      --card-bg: #FFFFFF;
+      --card-border: #E0E6EE;
+      --text-main: #1E293B;
+      --text-sub: #64748B;
+      --hero-bg: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+      --hero-border: rgba(56, 189, 248, 0.15);
+      --hero-accent: #38BDF8;
+      --hero-glow: rgba(56, 189, 248, 0.15);
+      --brand-accent: #3B82F6;
+      --brand-accent-hover: #2563EB;
+      --fab-bg: #1E293B;
+      --fab-text: #FFFFFF;
+      --shadow-sm: 0 2px 10px rgba(30, 41, 59, 0.03);
+      --shadow-md: 0 8px 30px rgba(30, 41, 59, 0.06);
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .custom-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+    }
+
+    .custom-hero {
+      background: var(--hero-bg);
+      border: 1px solid var(--hero-border);
+      box-shadow: 0 16px 36px -8px var(--hero-glow), 0 4px 12px rgba(0,0,0,0.12);
+      transition: all 0.3s ease;
+    }
+
+    /* Smooth luxury bottom sheet */
+    .modal-sheet {
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Hide scrollbars */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Number typography enhancement */
+    .num-font {
+      font-feature-settings: "tnum" 1, "cv01" 1;
+      letter-spacing: -0.02em;
+    }
   </style>
 </head>
-<body class="h-full text-slate-800 antialiased selection:bg-emerald-500 selection:text-white flex flex-col justify-between">
+<body class="h-full flex justify-center selection:bg-stone-200">
 
-  <!-- Main Container (Mobile Max Width) -->
-  <div class="w-full max-w-md mx-auto min-h-screen flex flex-col bg-white shadow-2xl relative">
+  <!-- Mobile Container Wrapper -->
+  <div class="w-full max-w-md min-h-screen flex flex-col justify-between relative pb-28 pt-safe">
     
     <!-- Top Header -->
-    <header class="pt-safe px-5 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur-md z-30">
+    <header class="px-5 pt-6 pb-4 flex items-center justify-between">
       <div>
-        <h1 class="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-          <span>歸序 <span class="text-sm font-semibold text-emerald-600 font-serif tracking-wider">Ordine</span></span>
-          <span id="syncBadge" class="text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-            <span id="syncBadgeText">本地模式</span>
+        <div class="flex items-center gap-2">
+          <h1 class="text-2xl font-bold tracking-tight text-[var(--text-main)] flex items-center gap-1.5">
+            歸序 <span class="font-serif italic font-normal text-lg opacity-85">Ordine</span>
+          </h1>
+          <span id="syncStatusBadge" class="text-[10px] tracking-wider px-2 py-0.5 rounded-full font-medium border border-amber-200 bg-amber-50 text-amber-700 transition-colors">
+            ● 本地模式
           </span>
-        </h1>
-        <p class="text-xs text-slate-500" id="currentDateDisplay">Loading...</p>
+        </div>
+        <p id="currentDateDisplay" class="text-xs text-[var(--text-sub)] mt-0.5 tracking-wide">2026年8月24日 週一</p>
       </div>
+
+      <!-- Action Buttons (Theme / Lang / Settings) -->
       <div class="flex items-center gap-1.5">
-        <!-- Language Switcher Button -->
-        <button id="langToggleBtn" onclick="toggleLanguage()" class="text-xs font-semibold px-2.5 py-1.5 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-1">
-          <i data-lucide="globe" class="w-3.5 h-3.5 text-emerald-600"></i>
-          <span id="langBtnText">EN</span>
+        <!-- Palette Theme Switcher Button -->
+        <button onclick="openThemeModal()" class="w-9 h-9 flex items-center justify-center rounded-full border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] hover:opacity-80 active:scale-95 transition-all shadow-sm" title="切換高雅主題">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 21a4 4 0 01-4-4 5 5 0 013-4.582V7a5 5 0 0110 0v5.418A5 5 0 0119 17a4 4 0 01-4 4H7zM7 21h10"/></svg>
         </button>
+
+        <!-- Language Button -->
+        <button onclick="toggleLanguage()" id="langBtn" class="h-9 px-2.5 flex items-center gap-1 text-xs font-semibold rounded-full border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] hover:opacity-80 active:scale-95 transition-all shadow-sm">
+          <span>🌐</span> <span id="langBtnText">EN</span>
+        </button>
+
         <!-- Settings Button -->
-        <button onclick="openSettingsModal()" class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors active:scale-95" title="Settings">
-          <i data-lucide="settings" class="w-5 h-5"></i>
+        <button onclick="openSettingsModal()" class="w-9 h-9 flex items-center justify-center rounded-full border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] hover:opacity-80 active:scale-95 transition-all shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         </button>
       </div>
     </header>
 
-    <!-- Main Scrollable Content Area -->
-    <main class="flex-1 px-4 py-4 space-y-4 overflow-y-auto no-scrollbar pb-28">
+    <!-- Main Content Area -->
+    <main class="px-5 space-y-4 flex-1">
+      
+      <!-- 1. Hero Summary Budget Card (High-End Luxury Card) -->
+      <section class="custom-hero rounded-3xl p-6 text-white relative overflow-hidden">
+        <!-- Ambient decorative grain & glow circle -->
+        <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-[var(--hero-accent)] opacity-10 blur-2xl pointer-events-none"></div>
 
-      <!-- 1. Monthly Summary & Budget Card -->
-      <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white rounded-3xl p-5 shadow-lg relative overflow-hidden">
-        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
-        <div class="flex justify-between items-start mb-3">
+        <div class="flex justify-between items-start">
           <div>
-            <span class="text-xs font-medium text-slate-400 tracking-wider uppercase" data-i18n="monthly_expense">本月總支出</span>
-            <div class="text-3xl font-extrabold tracking-tight mt-1">
-              <span class="text-emerald-400 text-xl font-normal">NT$</span> <span id="monthTotalExpense">0</span>
+            <span id="lblMonthlyExpense" class="text-xs uppercase tracking-widest text-white/65 font-medium">本月總支出</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span class="text-xs font-semibold text-[var(--hero-accent)]">NT$</span>
+              <span id="totalExpenseDisplay" class="text-3xl font-bold num-font tracking-tight">0</span>
             </div>
           </div>
           <div class="text-right">
-            <span class="text-xs text-slate-400" data-i18n="budget_target">目標預算</span>
-            <div class="text-sm font-semibold text-slate-200 mt-0.5">
-              NT$ <span id="budgetTargetDisplay">20,000</span>
-            </div>
+            <span id="lblBudgetGoal" class="text-xs uppercase tracking-widest text-white/65 font-medium">目標預算</span>
+            <p id="budgetGoalDisplay" class="text-sm font-semibold num-font mt-1 text-white/90">NT$ 20,000</p>
           </div>
         </div>
 
         <!-- Budget Progress Bar -->
-        <div class="space-y-1.5 mt-4">
-          <div class="flex justify-between text-xs text-slate-300">
-            <span><span data-i18n="remaining_budget">剩餘預算</span>: <b id="budgetRemaining" class="text-emerald-300">NT$ 20,000</b></span>
-            <span id="budgetPercent">0%</span>
+        <div class="mt-6">
+          <div class="flex justify-between text-xs mb-1.5">
+            <span class="text-white/70"><span id="lblRemainingBudget">剩餘預算</span>: <strong id="remainingBudgetDisplay" class="text-white font-medium num-font">NT$ 20,000</strong></span>
+            <span id="budgetPercentDisplay" class="num-font text-[var(--hero-accent)] font-semibold">0%</span>
           </div>
-          <div class="w-full h-2.5 bg-slate-700/60 rounded-full overflow-hidden p-0.5">
-            <div id="budgetProgressBar" class="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+          <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden p-0.5 backdrop-blur-sm">
+            <div id="budgetProgressBar" class="h-full rounded-full transition-all duration-500 bg-[var(--hero-accent)]" style="width: 0%"></div>
           </div>
-          <div class="flex justify-between text-[11px] text-slate-400 pt-0.5">
-            <span id="monthDaysRemaining">本月剩餘 0 天</span>
-            <span id="budgetStatusText" class="text-emerald-400 font-medium">預算控制良好</span>
+          <div class="flex justify-between items-center text-[11px] text-white/60 mt-2 font-normal">
+            <span id="daysRemainingText">本月剩餘 -- 天</span>
+            <span id="budgetStatusPill" class="text-[var(--hero-accent)] font-medium">預算控制良好</span>
           </div>
         </div>
       </section>
 
-      <!-- 2. Pie Chart Section (Category Breakdown) -->
-      <section class="bg-white rounded-3xl p-4 border border-slate-100 shadow-sm">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-            <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-600"></i>
-            <span data-i18n="category_breakdown">分類支出佔比</span>
-          </h2>
-          <span class="text-xs text-slate-400" id="pieChartTotalText">共 0 筆明細</span>
+      <!-- 2. Chart Breakdown Card -->
+      <section class="custom-card rounded-3xl p-5">
+        <div class="flex justify-between items-center mb-3">
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm">🧭</span>
+            <h2 id="lblCategoryTitle" class="text-sm font-semibold tracking-tight text-[var(--text-main)]">分類支出佔比</h2>
+          </div>
+          <span id="txCountBadge" class="text-xs text-[var(--text-sub)]">共 0 筆明細</span>
         </div>
         
-        <!-- Chart Canvas Container -->
-        <div class="relative h-44 w-full flex items-center justify-center my-1">
-          <canvas id="categoryPieChart"></canvas>
-          <div id="chartEmptyState" class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 text-xs hidden">
-            <i data-lucide="inbox" class="w-8 h-8 mb-1 opacity-50"></i>
-            <span data-i18n="no_chart_data">本月尚無消費資料</span>
+        <div class="flex items-center justify-between gap-2 pt-1 pb-1">
+          <div class="w-36 h-36 relative flex-shrink-0">
+            <canvas id="categoryChart"></canvas>
+            <div class="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
+              <span id="chartCenterPercent" class="text-sm font-bold num-font text-[var(--text-main)]">0%</span>
+              <span id="chartCenterLabel" class="text-[10px] text-[var(--text-sub)]">最大宗</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Legend List -->
+          <div id="chartLegend" class="flex-1 space-y-1.5 pl-2 text-xs">
+            <!-- Populated dynamically via JS -->
           </div>
         </div>
       </section>
 
-      <!-- 3. Category Filter Chips -->
-      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 text-xs">
-        <button onclick="filterCategory('all')" class="category-chip active px-3 py-1.5 rounded-full font-medium transition-all bg-slate-900 text-white shadow-sm flex-shrink-0" data-cat="all" data-i18n="cat_all">
-          全部
+      <!-- 3. Category Filter Pills -->
+      <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+        <button onclick="filterCategory('ALL')" class="category-pill active flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white transition-all shadow-sm" data-cat="ALL">
+          <span id="filterAllText">全部</span>
         </button>
-        <button onclick="filterCategory('餐飲')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="餐飲">
-          🍔 <span data-i18n="cat_food">餐飲</span>
+        <button onclick="filterCategory('餐飲')" class="category-pill flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] transition-all" data-cat="餐飲">
+          🍔 <span class="cat-label" data-key="dining">餐飲</span>
         </button>
-        <button onclick="filterCategory('交通')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="交通">
-          🚗 <span data-i18n="cat_transport">交通</span>
+        <button onclick="filterCategory('交通')" class="category-pill flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] transition-all" data-cat="交通">
+          🚕 <span class="cat-label" data-key="transport">交通</span>
         </button>
-        <button onclick="filterCategory('購物')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="購物">
-          🛍️ <span data-i18n="cat_shopping">購物</span>
+        <button onclick="filterCategory('購物')" class="category-pill flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] transition-all" data-cat="購物">
+          🛍️ <span class="cat-label" data-key="shopping">購物</span>
         </button>
-        <button onclick="filterCategory('娛樂')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="娛樂">
-          🎮 <span data-i18n="cat_entertainment">娛樂</span>
+        <button onclick="filterCategory('娛樂')" class="category-pill flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] transition-all" data-cat="娛樂">
+          🎬 <span class="cat-label" data-key="entertainment">娛樂</span>
         </button>
-        <button onclick="filterCategory('日常')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="日常">
-          🏠 <span data-i18n="cat_living">日常</span>
+        <button onclick="filterCategory('日常')" class="category-pill flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] transition-all" data-cat="日常">
+          🪴 <span class="cat-label" data-key="living">日常</span>
         </button>
-        <button onclick="filterCategory('其他')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="其他">
-          ✨ <span data-i18n="cat_other">其他</span>
+        <button onclick="filterCategory('其他')" class="category-pill flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] transition-all" data-cat="其他">
+          ✨ <span class="cat-label" data-key="other">其他</span>
         </button>
       </div>
 
-      <!-- 4. Recent Transactions List -->
-      <section class="space-y-2">
-        <div class="flex items-center justify-between px-1">
-          <h2 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-            <i data-lucide="clock" class="w-4 h-4 text-emerald-600"></i>
-            <span data-i18n="recent_records">近期消費明細</span>
-          </h2>
-          <span class="text-xs text-slate-400" id="listCountBadge">0 筆紀錄</span>
+      <!-- 4. Transactions List Section -->
+      <section class="space-y-3 pb-6">
+        <div class="flex justify-between items-center">
+          <h3 id="lblRecentTransactions" class="text-xs uppercase tracking-wider font-semibold text-[var(--text-sub)]">近期消費明細</h3>
+          <button onclick="exportCSV()" id="btnExport" class="text-xs text-[var(--text-sub)] hover:text-[var(--text-main)] flex items-center gap-1 font-medium transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span id="exportText">匯出 CSV</span>
+          </button>
         </div>
 
         <div id="transactionsList" class="space-y-2.5">
-          <!-- Rendered dynamically -->
-        </div>
-
-        <div id="listEmptyState" class="py-12 flex flex-col items-center justify-center text-slate-400 space-y-2 hidden">
-          <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-300">
-            <i data-lucide="receipt" class="w-6 h-6"></i>
-          </div>
-          <p class="text-sm font-medium" data-i18n="empty_transactions">尚無此分類消費紀錄</p>
-          <p class="text-xs text-slate-400" data-i18n="empty_tip">點擊右下角「+」或使用語音開始記帳</p>
+          <!-- Populated dynamically via JS -->
         </div>
       </section>
+
     </main>
 
     <!-- Floating Action Button (FAB) -->
     <div class="fixed bottom-6 right-6 z-40 max-w-md mx-auto">
-      <button onclick="openAddModal()" class="w-14 h-14 bg-gradient-to-tr from-emerald-600 to-teal-500 text-white rounded-full shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-emerald-500/30 focus:outline-none focus:ring-4 focus:ring-emerald-200">
-        <i data-lucide="plus" class="w-7 h-7 stroke-[2.5]"></i>
+      <button onclick="openAddModal()" class="w-14 h-14 rounded-full flex items-center justify-center shadow-xl active:scale-90 transition-all text-white bg-[var(--fab-bg)] hover:opacity-90" style="color: var(--fab-text);">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/>
+        </svg>
       </button>
-    </div>
-
-    <!-- Modal: Add / Edit Transaction (Bottom Sheet on Mobile) -->
-    <div id="expenseModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-end sm:items-center justify-center transition-all duration-300">
-      <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto transform transition-all pb-safe">
-        
-        <!-- Modal Header -->
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div class="flex items-center gap-2">
-            <span id="modalIconContainer" class="p-2 rounded-xl bg-emerald-50 text-emerald-600">
-              <i data-lucide="edit-3" class="w-5 h-5"></i>
-            </span>
-            <h3 id="modalTitle" class="text-lg font-bold text-slate-800" data-i18n="modal_add_title">新增記帳</h3>
-          </div>
-          <button onclick="closeExpenseModal()" class="p-2 text-slate-400 hover:text-slate-600 rounded-full">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-
-        <!-- Smart NLP / Voice Bar -->
-        <div class="mt-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl p-2.5">
-          <div class="flex items-center justify-between text-xs text-slate-500 mb-1.5 px-1">
-            <span class="flex items-center gap-1 font-medium text-emerald-700">
-              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-              <span data-i18n="smart_entry_title">智慧語音 / 文字解析</span>
-            </span>
-            <span class="text-[10px] text-slate-400" data-i18n="smart_entry_example">例：午餐 麥當勞 150 信用卡</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <input type="text" id="smartInput" placeholder="輸入或說出：麥當勞 150 信用卡..." 
-                   class="flex-1 bg-white text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-slate-800"
-                   onkeydown="if(event.key==='Enter'){event.preventDefault(); parseSmartInput();}">
-            <button type="button" onclick="parseSmartInput()" class="px-2.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-medium hover:bg-slate-800 active:scale-95" data-i18n="parse_btn">
-              解析
-            </button>
-            <button type="button" id="voiceBtn" onclick="toggleVoiceRecognition()" class="p-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 active:scale-95 transition-all" title="Voice Input">
-              <i data-lucide="mic" class="w-4 h-4"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Form Elements -->
-        <form id="expenseForm" onsubmit="handleFormSubmit(event)" class="mt-4 space-y-4">
-          <input type="hidden" id="editExpenseId" value="">
-
-          <!-- Amount Input -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="amount_label">金額 (NT$)</label>
-            <div class="relative">
-              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">$</span>
-              <input type="number" step="any" id="formAmount" required placeholder="0" 
-                     class="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-2xl font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
-            </div>
-            <!-- Quick Amount Increment Pills -->
-            <div class="flex gap-2 mt-2">
-              <button type="button" onclick="addAmount(50)" class="px-2.5 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-medium">+50</button>
-              <button type="button" onclick="addAmount(100)" class="px-2.5 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-medium">+100</button>
-              <button type="button" onclick="addAmount(500)" class="px-2.5 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-medium">+500</button>
-              <button type="button" onclick="addAmount(1000)" class="px-2.5 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-medium">+1000</button>
-            </div>
-          </div>
-
-          <!-- Category Selection -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5" data-i18n="category_label">分類</label>
-            <div class="grid grid-cols-3 gap-2" id="categorySelectionGrid">
-              <button type="button" onclick="selectCategory('餐飲')" data-category="餐飲" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
-                <span class="text-base">🍔</span> <span data-i18n="cat_food">餐飲</span>
-              </button>
-              <button type="button" onclick="selectCategory('交通')" data-category="交通" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
-                <span class="text-base">🚗</span> <span data-i18n="cat_transport">交通</span>
-              </button>
-              <button type="button" onclick="selectCategory('購物')" data-category="購物" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
-                <span class="text-base">🛍️</span> <span data-i18n="cat_shopping">購物</span>
-              </button>
-              <button type="button" onclick="selectCategory('娛樂')" data-category="娛樂" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
-                <span class="text-base">🎮</span> <span data-i18n="cat_entertainment">娛樂</span>
-              </button>
-              <button type="button" onclick="selectCategory('日常')" data-category="日常" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
-                <span class="text-base">🏠</span> <span data-i18n="cat_living">日常</span>
-              </button>
-              <button type="button" onclick="selectCategory('其他')" data-category="其他" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
-                <span class="text-base">✨</span> <span data-i18n="cat_other">其他</span>
-              </button>
-            </div>
-            <input type="hidden" id="formCategory" value="餐飲" required>
-          </div>
-
-          <!-- Note / Store -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="note_label">店家 / 備註</label>
-            <input type="text" id="formNote" placeholder="例如：麥當勞、全聯、加油..." 
-                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-500">
-          </div>
-
-          <!-- Date & Time Row -->
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="date_label">日期</label>
-              <input type="date" id="formDate" required
-                     class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-500">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="time_label">時間</label>
-              <input type="time" id="formTime" required
-                     class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-500">
-            </div>
-          </div>
-
-          <!-- Payment Method -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5" data-i18n="payment_label">支付方式</label>
-            <div class="grid grid-cols-3 gap-2" id="paymentSelectionGrid">
-              <button type="button" onclick="selectPayment('現金')" data-payment="現金" class="pay-btn p-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 text-center hover:bg-slate-50 transition-all">
-                💵 <span data-i18n="pay_cash">現金</span>
-              </button>
-              <button type="button" onclick="selectPayment('信用卡')" data-payment="信用卡" class="pay-btn p-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 text-center hover:bg-slate-50 transition-all">
-                💳 <span data-i18n="pay_credit">信用卡</span>
-              </button>
-              <button type="button" onclick="selectPayment('行動支付')" data-payment="行動支付" class="pay-btn p-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 text-center hover:bg-slate-50 transition-all">
-                📱 <span data-i18n="pay_mobile">行動支付</span>
-              </button>
-            </div>
-            <input type="hidden" id="formPayment" value="現金">
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex gap-2 pt-2">
-            <button type="button" id="btnDeleteExpense" onclick="handleDeleteExpense()" class="px-4 py-3 bg-rose-50 text-rose-600 rounded-2xl font-bold text-sm hover:bg-rose-100 active:scale-95 transition-all hidden" data-i18n="btn_delete">
-              刪除
-            </button>
-            <button type="button" onclick="closeExpenseModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 active:scale-95 transition-all" data-i18n="btn_cancel">
-              取消
-            </button>
-            <button type="submit" class="flex-1 py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 active:scale-95 shadow-md shadow-slate-900/20 transition-all" id="btnSaveSubmit" data-i18n="btn_save">
-              儲存記帳
-            </button>
-          </div>
-        </form>
-
-      </div>
-    </div>
-
-    <!-- Modal: Settings & Database Configuration -->
-    <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-end sm:items-center justify-center transition-all duration-300">
-      <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto transform transition-all pb-safe">
-        
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div class="flex items-center gap-2">
-            <span class="p-2 rounded-xl bg-slate-100 text-slate-800">
-              <i data-lucide="sliders" class="w-5 h-5"></i>
-            </span>
-            <h3 class="text-lg font-bold text-slate-800" data-i18n="settings_title">資料庫與預算設定</h3>
-          </div>
-          <button onclick="closeSettingsModal()" class="p-2 text-slate-400 hover:text-slate-600 rounded-full">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-
-        <div class="mt-4 space-y-4">
-          <!-- Monthly Budget Setting -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1" data-i18n="monthly_budget_label">每月目標預算 (NT$)</label>
-            <input type="number" id="settingBudgetTarget" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-500">
-          </div>
-
-          <!-- Supabase Config -->
-          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <i data-lucide="database" class="w-4 h-4 text-emerald-600"></i>
-                <span data-i18n="supabase_title">Supabase 雲端資料庫</span>
-              </span>
-              <span class="text-[10px] text-slate-500" data-i18n="optional_tag">(選填 / iOS捷徑用)</span>
-            </div>
-            
-            <p class="text-[11px] text-slate-500 leading-relaxed" data-i18n="supabase_desc">
-              填入 Supabase URL 與 Anon Key 後將自動切換為雲端模式，並支援外部 iOS 捷徑同步。留空則自動保存於本機。
-            </p>
-
-            <div>
-              <label class="block text-[11px] font-medium text-slate-600 mb-0.5">Project URL</label>
-              <input type="text" id="settingSupabaseUrl" placeholder="https://your-project.supabase.co" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800">
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-medium text-slate-600 mb-0.5">Anon Public Key</label>
-              <input type="password" id="settingSupabaseKey" placeholder="eyJhbGciOiJIUzI1NiIsIn..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800">
-            </div>
-          </div>
-
-          <!-- Export CSV -->
-          <div class="pt-1">
-            <button onclick="exportToCSV()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
-              <i data-lucide="download" class="w-4 h-4"></i>
-              <span data-i18n="btn_export_csv">一鍵匯出 CSV 試算表</span>
-            </button>
-          </div>
-
-          <!-- Save Button -->
-          <div class="pt-2">
-            <button onclick="saveSettings()" class="w-full py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all" data-i18n="btn_save_settings">
-              儲存設定並同步
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-full text-xs font-medium shadow-xl flex items-center gap-2 transform -translate-y-16 opacity-0 transition-all duration-300 pointer-events-none">
-      <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
-      <span id="toastMessage">操作成功</span>
     </div>
 
   </div>
 
-  <!-- JavaScript Logic & i18n -->
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. Theme Picker Modal (4 Luxury Styles) -->
+  <div id="themeModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 transition-opacity duration-200">
+    <div class="bg-[var(--card-bg)] w-full max-w-md rounded-t-[32px] sm:rounded-3xl p-6 modal-sheet transform translate-y-full border border-[var(--card-border)] shadow-2xl space-y-4">
+      <div class="w-12 h-1.5 bg-stone-300 rounded-full mx-auto mb-2 opacity-60"></div>
+      
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 id="lblThemeModalTitle" class="text-base font-bold text-[var(--text-main)]">風格美學配色</h3>
+          <p id="lblThemeModalDesc" class="text-xs text-[var(--text-sub)]">選擇專屬於你的高貴極簡主題</p>
+        </div>
+        <button onclick="closeThemeModal()" class="p-1.5 text-[var(--text-sub)] hover:text-[var(--text-main)] text-sm">✕</button>
+      </div>
+
+      <!-- Theme Cards List -->
+      <div class="space-y-2.5 pt-1">
+        
+        <!-- Theme 1: 燕麥香檳 -->
+        <button onclick="setTheme('oat')" class="theme-card w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all text-left" data-theme-name="oat">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center font-serif text-amber-800 shadow-sm" style="background: linear-gradient(135deg, #F8F6F1, #E8E2D5); border: 1px solid #D4AF37;">
+              ✨
+            </div>
+            <div>
+              <p class="text-sm font-bold text-stone-900">燕麥香檳 <span class="text-xs font-serif font-normal text-stone-500">Champagne Oat</span></p>
+              <p class="text-[11px] text-stone-500">法式極簡 · 溫潤亞麻 · 雅緻燙金 (預設)</p>
+            </div>
+          </div>
+          <span class="theme-check text-stone-900 font-bold text-sm hidden">✓</span>
+        </button>
+
+        <!-- Theme 2: 靜謐墨翠 -->
+        <button onclick="setTheme('sage')" class="theme-card w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all text-left" data-theme-name="sage">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-emerald-300 shadow-sm" style="background: linear-gradient(135deg, #0F1F1A, #162C24); border: 1px solid #34D399;">
+              🌲
+            </div>
+            <div>
+              <p class="text-sm font-bold text-emerald-950 dark:text-white">靜謐墨翠 <span class="text-xs font-serif font-normal text-emerald-700">Alpine Forest</span></p>
+              <p class="text-[11px] text-emerald-700">北歐高奢 · 森林黑曜 · 晨霧苔綠</p>
+            </div>
+          </div>
+          <span class="theme-check text-emerald-800 font-bold text-sm hidden">✓</span>
+        </button>
+
+        <!-- Theme 3: 極夜曜石 -->
+        <button onclick="setTheme('obsidian')" class="theme-card w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all text-left" data-theme-name="obsidian">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-amber-400 shadow-sm" style="background: linear-gradient(135deg, #191E28, #0C0E12); border: 1px solid #F59E0B;">
+              🌑
+            </div>
+            <div>
+              <p class="text-sm font-bold text-stone-900 dark:text-white">極夜曜石 <span class="text-xs font-serif font-normal text-amber-500">Obsidian Stealth</span></p>
+              <p class="text-[11px] text-stone-400">深邃啞光 · 鈦空黑曜 · 奢華暗色</p>
+            </div>
+          </div>
+          <span class="theme-check text-amber-500 font-bold text-sm hidden">✓</span>
+        </button>
+
+        <!-- Theme 4: 莫蘭迪霧藍 -->
+        <button onclick="setTheme('mist')" class="theme-card w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all text-left" data-theme-name="mist">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sky-400 shadow-sm" style="background: linear-gradient(135deg, #1E293B, #334155); border: 1px solid #38BDF8;">
+              🪞
+            </div>
+            <div>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">莫蘭迪霧藍 <span class="text-xs font-serif font-normal text-slate-500">Morandi Mist</span></p>
+              <p class="text-[11px] text-slate-500">低飽和晨霧 · 冰藍質感 · 清澈純粹</p>
+            </div>
+          </div>
+          <span class="theme-check text-sky-600 font-bold text-sm hidden">✓</span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Transaction Add/Edit Modal -->
+  <div id="txModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 transition-opacity duration-200">
+    <div class="bg-[var(--card-bg)] w-full max-w-md rounded-t-[32px] sm:rounded-3xl p-6 modal-sheet transform translate-y-full border border-[var(--card-border)] shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto no-scrollbar">
+      
+      <div class="w-12 h-1.5 bg-stone-300 rounded-full mx-auto opacity-60"></div>
+      
+      <div class="flex justify-between items-center">
+        <h3 id="modalTitle" class="text-base font-bold text-[var(--text-main)]">新增消費紀錄</h3>
+        <button onclick="closeTxModal()" class="text-stone-400 hover:text-stone-600 p-1">✕</button>
+      </div>
+
+      <!-- Smart Input & Voice -->
+      <div class="space-y-1.5">
+        <div class="flex gap-2">
+          <input type="text" id="smartInput" placeholder="💡 智慧解析 (如: 午餐 麥當勞 150)" class="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-accent)]">
+          <button onclick="parseSmartInput()" id="btnSmartParse" class="px-3 py-2 bg-[var(--brand-accent)] text-white text-xs rounded-xl font-medium shadow-sm hover:opacity-90">解析</button>
+          <button onclick="startVoiceRecognition()" id="btnVoice" class="px-3 py-2 bg-[var(--card-border)] text-[var(--text-main)] text-xs rounded-xl font-medium hover:opacity-80" title="語音輸入">🎙️</button>
+        </div>
+        <p id="voiceHint" class="text-[10px] text-[var(--text-sub)] pl-1 hidden text-emerald-600">正在聆聽... 請說話 (例如: 午餐 150)</p>
+      </div>
+
+      <form id="txForm" onsubmit="handleSaveTransaction(event)" class="space-y-4 pt-1">
+        <input type="hidden" id="txId">
+
+        <!-- Amount -->
+        <div>
+          <label id="lblAmount" class="block text-xs font-semibold text-[var(--text-sub)] mb-1">金額 (NT$)</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--brand-accent)]">NT$</span>
+            <input type="number" step="any" id="txAmount" required placeholder="0" class="w-full pl-12 pr-4 py-3 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] font-bold text-xl num-font focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]">
+          </div>
+          <!-- Quick Amount Buttons -->
+          <div class="flex gap-1.5 mt-2">
+            <button type="button" onclick="addAmount(50)" class="flex-1 py-1 text-xs font-medium rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-sub)] hover:text-[var(--text-main)]">+50</button>
+            <button type="button" onclick="addAmount(100)" class="flex-1 py-1 text-xs font-medium rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-sub)] hover:text-[var(--text-main)]">+100</button>
+            <button type="button" onclick="addAmount(500)" class="flex-1 py-1 text-xs font-medium rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-sub)] hover:text-[var(--text-main)]">+500</button>
+            <button type="button" onclick="addAmount(1000)" class="flex-1 py-1 text-xs font-medium rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-sub)] hover:text-[var(--text-main)]">+1000</button>
+          </div>
+        </div>
+
+        <!-- Categories Grid -->
+        <div>
+          <label id="lblCategory" class="block text-xs font-semibold text-[var(--text-sub)] mb-1.5">消費類別</label>
+          <div class="grid grid-cols-3 gap-2" id="categorySelectionGrid">
+            <!-- Dynamic Category Buttons -->
+          </div>
+          <input type="hidden" id="txCategory" value="餐飲" required>
+        </div>
+
+        <!-- Note / Merchant -->
+        <div>
+          <label id="lblNote" class="block text-xs font-semibold text-[var(--text-sub)] mb-1">店家 / 備註</label>
+          <input type="text" id="txNote" placeholder="例如：麥當勞、全聯、加油" class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] text-xs focus:outline-none focus:ring-1 focus:ring-[var(--brand-accent)]">
+        </div>
+
+        <!-- Date & Time -->
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label id="lblDate" class="block text-xs font-semibold text-[var(--text-sub)] mb-1">日期</label>
+            <input type="date" id="txDate" required class="w-full px-3 py-2 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] text-xs focus:outline-none">
+          </div>
+          <div>
+            <label id="lblTime" class="block text-xs font-semibold text-[var(--text-sub)] mb-1">時間</label>
+            <input type="time" id="txTime" class="w-full px-3 py-2 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] text-xs focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div>
+          <label id="lblPayment" class="block text-xs font-semibold text-[var(--text-sub)] mb-1">支付方式</label>
+          <div class="flex gap-2">
+            <button type="button" onclick="setPaymentMethod('現金')" class="pay-btn flex-1 py-2 rounded-xl text-xs font-medium border border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white transition-all" data-method="現金">
+              💵 <span class="pay-label" data-key="cash">現金</span>
+            </button>
+            <button type="button" onclick="setPaymentMethod('信用卡')" class="pay-btn flex-1 py-2 rounded-xl text-xs font-medium border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] transition-all" data-method="信用卡">
+              💳 <span class="pay-label" data-key="card">信用卡</span>
+            </button>
+            <button type="button" onclick="setPaymentMethod('行動支付')" class="pay-btn flex-1 py-2 rounded-xl text-xs font-medium border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] transition-all" data-method="行動支付">
+              📱 <span class="pay-label" data-key="mobile">行動支付</span>
+            </button>
+          </div>
+          <input type="hidden" id="txPayment" value="現金">
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="btnDeleteTx" onclick="handleDeleteTransaction()" class="hidden flex-1 py-3 border border-red-200 text-red-600 rounded-xl text-xs font-bold hover:bg-red-50 transition-all">
+            刪除
+          </button>
+          <button type="submit" id="btnSaveTx" class="flex-[2] py-3 bg-[var(--brand-accent)] text-white rounded-xl text-xs font-bold shadow-md hover:opacity-90 transition-all">
+            儲存紀錄
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Supabase & Budget Settings Modal -->
+  <div id="settingsModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 transition-opacity duration-200">
+    <div class="bg-[var(--card-bg)] w-full max-w-md rounded-t-[32px] sm:rounded-3xl p-6 modal-sheet transform translate-y-full border border-[var(--card-border)] shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div class="w-12 h-1.5 bg-stone-300 rounded-full mx-auto opacity-60"></div>
+      
+      <div class="flex justify-between items-center">
+        <h3 id="lblSettingsTitle" class="text-base font-bold text-[var(--text-main)]">系統設定</h3>
+        <button onclick="closeSettingsModal()" class="text-stone-400 hover:text-stone-600 p-1">✕</button>
+      </div>
+
+      <form onsubmit="handleSaveSettings(event)" class="space-y-4 pt-1">
+        <!-- Monthly Budget -->
+        <div>
+          <label id="lblMonthlyBudgetSetting" class="block text-xs font-semibold text-[var(--text-sub)] mb-1">每月目標預算 (NT$)</label>
+          <input type="number" id="settingBudget" class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm font-bold num-font focus:outline-none">
+        </div>
+
+        <div class="border-t border-[var(--card-border)] pt-3">
+          <h4 id="lblSupabaseSyncTitle" class="text-xs font-bold text-[var(--text-main)] mb-1">☁️ Supabase 雲端資料庫串接</h4>
+          <p id="lblSupabaseSyncDesc" class="text-[11px] text-[var(--text-sub)] mb-3">填入後可啟用跨裝置即時同步與 iOS 捷徑 API 記帳。</p>
+
+          <div class="space-y-2.5">
+            <div>
+              <label class="block text-[11px] font-medium text-[var(--text-sub)] mb-1">Supabase Project URL</label>
+              <input type="text" id="settingSupaUrl" placeholder="https://xxx.supabase.co" class="w-full px-3 py-2 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] text-xs focus:outline-none font-mono">
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-[var(--text-sub)] mb-1">Anon / Public API Key</label>
+              <input type="password" id="settingSupaKey" placeholder="eyJhbGciOi..." class="w-full px-3 py-2 rounded-xl border border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] text-xs focus:outline-none font-mono">
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" id="btnSaveSettings" class="w-full py-3 bg-[var(--brand-accent)] text-white rounded-xl text-xs font-bold shadow-md hover:opacity-90 transition-all">
+            儲存設定並同步
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-xs font-semibold shadow-xl border backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 transform -translate-y-2"></div>
+
+  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
   <script>
-    // ==========================================
-    // 🌐 BILINGUAL i18n DICTIONARY
-    // ==========================================
-    const i18n = {
+    // Categories Palette (Curated High-End Morandi Palette)
+    const THEME_PALETTES = {
+      oat: ['#C2785C', '#5B7C99', '#B07D8B', '#8E829F', '#689680', '#9A9289'],
+      sage: ['#D97757', '#4E7D96', '#9E6D85', '#7A729E', '#3D7A68', '#7E8582'],
+      obsidian: ['#F59E0B', '#60A5FA', '#F472B6', '#A78BFA', '#34D399', '#94A3B8'],
+      mist: ['#E07A5F', '#3D5A80', '#98C1D9', '#8A817C', '#81B29A', '#BC6C25']
+    };
+
+    const CATEGORIES = [
+      { key: '餐飲', icon: '🍔', en: 'Dining', colorIdx: 0 },
+      { key: '交通', icon: '🚕', en: 'Transport', colorIdx: 1 },
+      { key: '購物', icon: '🛍️', en: 'Shopping', colorIdx: 2 },
+      { key: '娛樂', icon: '🎬', en: 'Entertainment', colorIdx: 3 },
+      { key: '日常', icon: '🪴', en: 'Living', colorIdx: 4 },
+      { key: '其他', icon: '✨', en: 'Other', colorIdx: 5 }
+    ];
+
+    // Multi-language Translations
+    const I18N = {
       'zh-TW': {
-        brand_title: '歸序',
-        brand_sub: 'Ordine',
-        local_mode: '本地模式',
-        cloud_mode: '雲端已同步',
-        monthly_expense: '本月總支出',
-        budget_target: '目標預算',
-        remaining_budget: '剩餘預算',
-        budget_good: '預算控制良好',
-        budget_warning: '預算已使用超過 80%',
-        budget_exceeded: '⚠️ 已超支！請注意開銷',
-        days_left_prefix: '本月剩餘',
-        days_left_suffix: '天',
-        category_breakdown: '分類支出佔比',
-        total_records_prefix: '共',
-        total_records_suffix: '筆明細',
-        no_chart_data: '本月尚無消費資料',
-        recent_records: '近期消費明細',
-        records_unit: '筆紀錄',
-        empty_transactions: '尚無此分類消費紀錄',
-        empty_tip: '點擊右下角「+」或使用語音開始記帳',
-        modal_add_title: '新增記帳',
-        modal_edit_title: '編輯消費明細',
-        smart_entry_title: '智慧語音 / 文字解析',
-        smart_entry_example: '例：午餐 麥當勞 150 信用卡',
-        smart_placeholder: '輸入或說出：麥當勞 150 信用卡...',
-        parse_btn: '解析',
-        amount_label: '金額 (NT$)',
-        category_label: '分類',
-        note_label: '店家 / 備註',
-        note_placeholder: '例如：麥當勞、全聯、加油...',
-        date_label: '日期',
-        time_label: '時間',
-        payment_label: '支付方式',
-        btn_delete: '刪除',
-        btn_cancel: '取消',
-        btn_save: '儲存記帳',
-        btn_update: '更新紀錄',
-        settings_title: '資料庫與預算設定',
-        monthly_budget_label: '每月目標預算 (NT$)',
-        supabase_title: 'Supabase 雲端資料庫',
-        optional_tag: '(選填 / iOS捷徑用)',
-        supabase_desc: '填入 Supabase URL 與 Anon Key 後將自動切換為雲端模式，並支援外部 iOS 捷徑同步。留空則自動保存於本機。',
-        btn_export_csv: '一鍵匯出 CSV 試算表',
-        btn_save_settings: '儲存設定並同步',
-        cat_all: '全部',
-        cat_food: '餐飲',
-        cat_transport: '交通',
-        cat_shopping: '購物',
-        cat_entertainment: '娛樂',
-        cat_living: '日常',
-        cat_other: '其他',
-        pay_cash: '現金',
-        pay_credit: '信用卡',
-        pay_mobile: '行動支付',
-        toast_saved: '記帳成功！',
-        toast_updated: '更新成功！',
-        toast_deleted: '已刪除紀錄！',
-        toast_settings_saved: '設定已更新並完成同步！',
-        toast_csv_exported: 'CSV 已成功匯出！',
-        toast_parse_error: '未能解析金額，請確認輸入格式 (如: 麥當勞 150)',
-        toast_voice_error: '瀏覽器不支援語音辨識或權限被拒絕'
+        brand: '歸序',
+        brandSub: 'Ordine',
+        localMode: '● 本地模式',
+        cloudMode: '● 雲端已同步',
+        monthlyExpense: '本月總支出',
+        budgetGoal: '目標預算',
+        remainingBudget: '剩餘預算',
+        budgetGood: '預算控制良好',
+        budgetWarning: '預算已達 80%',
+        budgetOver: '本月已超支！',
+        daysRemaining: (d) => `本月剩餘 ${d} 天`,
+        categoryTitle: '分類支出佔比',
+        totalTxs: (n) => `共 ${n} 筆明細`,
+        all: '全部',
+        recentTxs: '近期消費明細',
+        exportCsv: '匯出 CSV',
+        dining: '餐飲',
+        transport: '交通',
+        shopping: '購物',
+        entertainment: '娛樂',
+        living: '日常',
+        other: '其他',
+        cash: '現金',
+        card: '信用卡',
+        mobile: '行動支付',
+        addTxTitle: '新增消費紀錄',
+        editTxTitle: '編輯消費紀錄',
+        amount: '金額 (NT$)',
+        category: '消費類別',
+        note: '店家 / 備註',
+        date: '日期',
+        time: '時間',
+        payment: '支付方式',
+        save: '儲存紀錄',
+        delete: '刪除紀錄',
+        smartPlaceholder: '💡 智慧解析 (如: 午餐 麥當勞 150)',
+        parseBtn: '解析',
+        listening: '正在聆聽... 請說話 (例如: 午餐 150)',
+        settingsTitle: '系統設定',
+        monthlyBudgetSetting: '每月目標預算 (NT$)',
+        saveSettings: '儲存設定並同步',
+        noData: '尚無消費紀錄，點擊右下角「+」開始記帳！',
+        saveSuccess: '紀錄已成功儲存 ✨',
+        deleteSuccess: '紀錄已刪除 🗑️',
+        syncSuccess: '雲端同步完成 ☁️',
+        topCategory: '最大宗',
+        themeTitle: '風格美學配色',
+        themeDesc: '選擇專屬於你的高貴極簡主題'
       },
       'en': {
-        brand_title: 'Ordine',
-        brand_sub: '歸序',
-        local_mode: 'Local Mode',
-        cloud_mode: 'Cloud Synced',
-        monthly_expense: 'Monthly Total',
-        budget_target: 'Budget Target',
-        remaining_budget: 'Remaining',
-        budget_good: 'Budget on track',
-        budget_warning: '80% of budget used',
-        budget_exceeded: '⚠️ Over Budget!',
-        days_left_prefix: '',
-        days_left_suffix: ' days left',
-        category_breakdown: 'Category Breakdown',
-        total_records_prefix: '',
-        total_records_suffix: ' entries',
-        no_chart_data: 'No expenses recorded this month',
-        recent_records: 'Recent Transactions',
-        records_unit: 'items',
-        empty_transactions: 'No transactions found',
-        empty_tip: 'Tap "+" or use voice to add an expense',
-        modal_add_title: 'Add Expense',
-        modal_edit_title: 'Edit Transaction',
-        smart_entry_title: 'Smart NLP / Voice Input',
-        smart_entry_example: 'e.g. Lunch McDonald 150 Card',
-        smart_placeholder: 'Type or speak: Starbucks 150 card...',
-        parse_btn: 'Parse',
-        amount_label: 'Amount (NT$)',
-        category_label: 'Category',
-        note_label: 'Store / Note',
-        note_placeholder: 'e.g. Starbucks, Uber, Grocery...',
-        date_label: 'Date',
-        time_label: 'Time',
-        payment_label: 'Payment Method',
-        btn_delete: 'Delete',
-        btn_cancel: 'Cancel',
-        btn_save: 'Save Expense',
-        btn_update: 'Update Entry',
-        settings_title: 'Settings & Database',
-        monthly_budget_label: 'Monthly Target Budget (NT$)',
-        supabase_title: 'Supabase Cloud Database',
-        optional_tag: '(Optional / For iOS Shortcuts)',
-        supabase_desc: 'Enter Supabase URL & Anon Key to sync with cloud and enable iOS Shortcuts API. Leave blank to store locally in browser.',
-        btn_export_csv: 'Export to CSV Spreadsheet',
-        btn_save_settings: 'Save & Sync Settings',
-        cat_all: 'All',
-        cat_food: 'Dining',
-        cat_transport: 'Transport',
-        cat_shopping: 'Shopping',
-        cat_entertainment: 'Entertainment',
-        cat_living: 'Living',
-        cat_other: 'Other',
-        pay_cash: 'Cash',
-        pay_credit: 'Credit Card',
-        pay_mobile: 'Mobile Pay',
-        toast_saved: 'Expense saved successfully!',
-        toast_updated: 'Transaction updated!',
-        toast_deleted: 'Record deleted!',
-        toast_settings_saved: 'Settings saved & synced!',
-        toast_csv_exported: 'CSV exported successfully!',
-        toast_parse_error: 'Could not parse amount. Format: e.g. Lunch 150',
-        toast_voice_error: 'Speech recognition not supported or permission denied'
+        brand: 'Ordine',
+        brandSub: 'Expense',
+        localMode: '● Local Mode',
+        cloudMode: '● Cloud Synced',
+        monthlyExpense: 'Monthly Expense',
+        budgetGoal: 'Budget Goal',
+        remainingBudget: 'Remaining',
+        budgetGood: 'Within Budget',
+        budgetWarning: '80% Budget Used',
+        budgetOver: 'Budget Exceeded!',
+        daysRemaining: (d) => `${d} days left this month`,
+        categoryTitle: 'Category Breakdown',
+        totalTxs: (n) => `${n} transactions`,
+        all: 'All',
+        recentTxs: 'Recent Transactions',
+        exportCsv: 'Export CSV',
+        dining: 'Dining',
+        transport: 'Transport',
+        shopping: 'Shopping',
+        entertainment: 'Fun',
+        living: 'Living',
+        other: 'Other',
+        cash: 'Cash',
+        card: 'Credit Card',
+        mobile: 'Mobile Pay',
+        addTxTitle: 'Add Transaction',
+        editTxTitle: 'Edit Transaction',
+        amount: 'Amount (NT$)',
+        category: 'Category',
+        note: 'Note / Merchant',
+        date: 'Date',
+        time: 'Time',
+        payment: 'Payment Method',
+        save: 'Save Transaction',
+        delete: 'Delete',
+        smartPlaceholder: '💡 Smart NLP (e.g. Lunch Burger 150 card)',
+        parseBtn: 'Parse',
+        listening: 'Listening... Please speak (e.g. Lunch 150)',
+        settingsTitle: 'Settings',
+        monthlyBudgetSetting: 'Monthly Budget Goal (NT$)',
+        saveSettings: 'Save & Sync',
+        noData: 'No transactions yet. Tap the "+" button to begin!',
+        saveSuccess: 'Saved successfully ✨',
+        deleteSuccess: 'Transaction deleted 🗑️',
+        syncSuccess: 'Cloud synced ☁️',
+        topCategory: 'Top Spend',
+        themeTitle: 'Theme Aesthetics',
+        themeDesc: 'Select your preferred quiet luxury palette'
       }
     };
 
-    // Category mapping & UI configuration
-    const CATEGORIES = {
-      '餐飲': { icon: '🍔', en: 'Dining', color: '#f97316' },
-      '交通': { icon: '🚗', en: 'Transport', color: '#3b82f6' },
-      '購物': { icon: '🛍️', en: 'Shopping', color: '#ec4899' },
-      '娛樂': { icon: '🎮', en: 'Entertainment', color: '#8b5cf6' },
-      '日常': { icon: '🏠', en: 'Living', color: '#10b981' },
-      '其他': { icon: '✨', en: 'Other', color: '#64748b' }
+    // State Variables
+    let currentLang = localStorage.getItem('ordine_lang') || 'zh-TW';
+    let currentTheme = localStorage.getItem('ordine_theme') || 'oat';
+    let currentFilter = 'ALL';
+    let transactions = [];
+    let chartInstance = null;
+    let recognition = null;
+
+    let appSettings = {
+      budget: 20000,
+      supaUrl: '',
+      supaKey: ''
     };
 
-    // Storage Keys
-    const STORAGE_KEY_LANG = 'ordine_lang';
-    const STORAGE_KEY_TX = 'ordine_transactions';
-    const STORAGE_KEY_BUDGET = 'ordine_budget';
-    const STORAGE_KEY_SUPABASE = 'ordine_supabase_config';
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+      applyTheme(currentTheme);
+      initDateDisplay();
+      initCategoryGrid();
+      applyLanguage(currentLang);
+      loadTransactions();
+    });
 
-    // App State
-    let currentLang = localStorage.getItem(STORAGE_KEY_LANG) || 'zh-TW';
-    let transactions = [];
-    let currentFilter = 'all';
-    let monthlyBudget = 20000;
-    let supabaseConfig = { url: '', key: '' };
-    let supabaseClient = null;
-    let pieChart = null;
-
-    // ==========================================
-    // 🌐 LANGUAGE MANAGEMENT & TRANSLATION
-    // ==========================================
-    function t(key) {
-      return i18n[currentLang][key] || key;
+    // Theme Management
+    function setTheme(themeName) {
+      currentTheme = themeName;
+      localStorage.setItem('ordine_theme', themeName);
+      applyTheme(themeName);
+      closeThemeModal();
+      showToast(currentLang === 'zh-TW' ? '已切換美學配色 ✨' : 'Theme applied ✨');
     }
 
-    function toggleLanguage() {
-      currentLang = (currentLang === 'zh-TW') ? 'en' : 'zh-TW';
-      localStorage.setItem(STORAGE_KEY_LANG, currentLang);
-      applyLanguage();
-    }
+    function applyTheme(themeName) {
+      if (themeName === 'oat') {
+        document.documentElement.removeAttribute('data-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', themeName);
+      }
 
-    function applyLanguage() {
-      document.documentElement.lang = currentLang;
-      document.getElementById('langBtnText').textContent = (currentLang === 'zh-TW') ? 'EN' : '繁中';
+      // Update Meta Theme Color for mobile status bars
+      const metaTheme = document.getElementById('meta-theme-color');
+      if (themeName === 'obsidian') {
+        metaTheme.setAttribute('content', '#0C0E12');
+      } else if (themeName === 'sage') {
+        metaTheme.setAttribute('content', '#F4F6F4');
+      } else if (themeName === 'mist') {
+        metaTheme.setAttribute('content', '#F1F4F8');
+      } else {
+        metaTheme.setAttribute('content', '#F8F6F1');
+      }
 
-      // Update all static data-i18n elements
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (i18n[currentLang][key]) {
-          el.textContent = i18n[currentLang][key];
+      // Update Theme modal checkmarks
+      document.querySelectorAll('.theme-card').forEach(card => {
+        const name = card.getAttribute('data-theme-name');
+        const check = card.querySelector('.theme-check');
+        if (name === themeName) {
+          card.classList.add('border-[var(--brand-accent)]', 'bg-stone-50', 'dark:bg-white/5');
+          check.classList.remove('hidden');
+        } else {
+          card.classList.remove('border-[var(--brand-accent)]', 'bg-stone-50', 'dark:bg-white/5');
+          check.classList.add('hidden');
         }
       });
 
-      // Update Placeholders
-      document.getElementById('smartInput').placeholder = t('smart_placeholder');
-      document.getElementById('formNote').placeholder = t('note_placeholder');
+      // Update Chart with new luxury palette
+      updateDashboard();
+    }
 
-      // Update Header Date
-      updateHeaderDate();
-      // Update UI components
-      updateSyncBadge();
-      renderDashboard();
+    function openThemeModal() {
+      const modal = document.getElementById('themeModal');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.querySelector('.modal-sheet').classList.remove('translate-y-full');
+      }, 10);
+    }
+
+    function closeThemeModal() {
+      const modal = document.getElementById('themeModal');
+      modal.querySelector('.modal-sheet').classList.add('translate-y-full');
+      modal.classList.add('opacity-0');
+      setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    // Language Toggle
+    function toggleLanguage() {
+      currentLang = currentLang === 'zh-TW' ? 'en' : 'zh-TW';
+      localStorage.setItem('ordine_lang', currentLang);
+      applyLanguage(currentLang);
+      showToast(currentLang === 'zh-TW' ? '已切換為 繁體中文' : 'Switched to English');
+    }
+
+    function applyLanguage(lang) {
+      const t = I18N[lang];
+      document.getElementById('langBtnText').textContent = lang === 'zh-TW' ? 'EN' : '繁中';
+      document.getElementById('lblMonthlyExpense').textContent = t.monthlyExpense;
+      document.getElementById('lblBudgetGoal').textContent = t.budgetGoal;
+      document.getElementById('lblRemainingBudget').textContent = t.remainingBudget;
+      document.getElementById('lblCategoryTitle').textContent = t.categoryTitle;
+      document.getElementById('filterAllText').textContent = t.all;
+      document.getElementById('lblRecentTransactions').textContent = t.recentTxs;
+      document.getElementById('exportText').textContent = t.exportCsv;
+      document.getElementById('smartInput').placeholder = t.smartPlaceholder;
+      document.getElementById('btnSmartParse').textContent = t.parseBtn;
+      document.getElementById('lblAmount').textContent = t.amount;
+      document.getElementById('lblCategory').textContent = t.category;
+      document.getElementById('lblNote').textContent = t.note;
+      document.getElementById('lblDate').textContent = t.date;
+      document.getElementById('lblTime').textContent = t.time;
+      document.getElementById('lblPayment').textContent = t.payment;
+      document.getElementById('btnSaveTx').textContent = t.save;
+      document.getElementById('btnDeleteTx').textContent = t.delete;
+      document.getElementById('lblSettingsTitle').textContent = t.settingsTitle;
+      document.getElementById('lblMonthlyBudgetSetting').textContent = t.monthlyBudgetSetting;
+      document.getElementById('btnSaveSettings').textContent = t.saveSettings;
+      document.getElementById('chartCenterLabel').textContent = t.topCategory;
+      document.getElementById('lblThemeModalTitle').textContent = t.themeTitle;
+      document.getElementById('lblThemeModalDesc').textContent = t.themeDesc;
+
+      // Update category labels inside pills and buttons
+      document.querySelectorAll('.cat-label').forEach(el => {
+        const key = el.getAttribute('data-key');
+        if (t[key]) el.textContent = t[key];
+      });
+
+      // Update payment method labels
+      document.querySelectorAll('.pay-label').forEach(el => {
+        const key = el.getAttribute('data-key');
+        if (t[key]) el.textContent = t[key];
+      });
+
+      initDateDisplay();
+      initCategoryGrid();
+      updateDashboard();
       renderTransactions();
-      lucide.createIcons();
     }
 
-    function updateHeaderDate() {
+    // Category Grid Builder
+    function initCategoryGrid() {
+      const grid = document.getElementById('categorySelectionGrid');
+      const currentCat = document.getElementById('txCategory').value || '餐飲';
+      const t = I18N[currentLang];
+
+      grid.innerHTML = CATEGORIES.map(cat => {
+        const isSelected = cat.key === currentCat;
+        const name = currentLang === 'zh-TW' ? cat.key : cat.en;
+        const selectedClass = isSelected 
+          ? 'border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white shadow-sm font-semibold' 
+          : 'border-[var(--card-border)] bg-[var(--bg-main)] text-[var(--text-main)] hover:opacity-80';
+        return `
+          <button type="button" onclick="selectCategory('${cat.key}')" class="cat-select-btn flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs border transition-all ${selectedClass}" data-cat="${cat.key}">
+            <span>${cat.icon}</span> <span>${name}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectCategory(catKey) {
+      document.getElementById('txCategory').value = catKey;
+      initCategoryGrid();
+    }
+
+    function setPaymentMethod(method) {
+      document.getElementById('txPayment').value = method;
+      document.querySelectorAll('.pay-btn').forEach(btn => {
+        if (btn.getAttribute('data-method') === method) {
+          btn.className = 'pay-btn flex-1 py-2 rounded-xl text-xs font-medium border border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white transition-all';
+        } else {
+          btn.className = 'pay-btn flex-1 py-2 rounded-xl text-xs font-medium border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] transition-all';
+        }
+      });
+    }
+
+    // Date Header
+    function initDateDisplay() {
       const now = new Date();
-      const options = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' };
-      document.getElementById('currentDateDisplay').textContent = now.toLocaleDateString(currentLang === 'zh-TW' ? 'zh-TW' : 'en-US', options);
-    }
-
-    function getCategoryDisplayName(catKey) {
-      if (currentLang === 'en') {
-        return CATEGORIES[catKey] ? CATEGORIES[catKey].en : catKey;
+      if (currentLang === 'zh-TW') {
+        const days = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+        document.getElementById('currentDateDisplay').textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${days[now.getDay()]}`;
+      } else {
+        const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+        document.getElementById('currentDateDisplay').textContent = now.toLocaleDateString('en-US', options);
       }
-      return catKey;
     }
 
-    function getPaymentDisplayName(payKey) {
-      if (currentLang === 'en') {
-        if (payKey === '現金') return 'Cash';
-        if (payKey === '信用卡') return 'Credit Card';
-        if (payKey === '行動支付') return 'Mobile Pay';
-      }
-      return payKey;
-    }
-
-    // ==========================================
-    // 🚀 INITIALIZATION
-    // ==========================================
-    document.addEventListener('DOMContentLoaded', async () => {
-      loadSettings();
-      initChart();
-      initDefaultFormDateTime();
-      applyLanguage();
-      await loadTransactions();
-    });
-
+    // Load / Save Settings
     function loadSettings() {
-      const savedBudget = localStorage.getItem(STORAGE_KEY_BUDGET);
-      if (savedBudget) monthlyBudget = parseFloat(savedBudget);
-      document.getElementById('settingBudgetTarget').value = monthlyBudget;
-
-      const savedSupa = localStorage.getItem(STORAGE_KEY_SUPABASE);
-      if (savedSupa) {
-        try {
-          supabaseConfig = JSON.parse(savedSupa);
-          document.getElementById('settingSupabaseUrl').value = supabaseConfig.url || '';
-          document.getElementById('settingSupabaseKey').value = supabaseConfig.key || '';
-          initSupabase();
-        } catch(e){}
+      const saved = localStorage.getItem('ordine_settings');
+      if (saved) {
+        appSettings = JSON.parse(saved);
       }
+      document.getElementById('settingBudget').value = appSettings.budget;
+      document.getElementById('settingSupaUrl').value = appSettings.supaUrl || '';
+      document.getElementById('settingSupaKey').value = appSettings.supaKey || '';
+      updateSyncStatusUI();
     }
 
-    function initSupabase() {
-      if (supabaseConfig.url && supabaseConfig.key && window.supabase) {
-        try {
-          supabaseClient = window.supabase.createClient(supabaseConfig.url, supabaseConfig.key);
-        } catch(e) {
-          console.error("Supabase Init Error:", e);
-          supabaseClient = null;
-        }
+    function handleSaveSettings(e) {
+      e.preventDefault();
+      appSettings.budget = Number(document.getElementById('settingBudget').value) || 20000;
+      appSettings.supaUrl = document.getElementById('settingSupaUrl').value.trim();
+      appSettings.supaKey = document.getElementById('settingSupaKey').value.trim();
+      localStorage.setItem('ordine_settings', JSON.stringify(appSettings));
+      updateSyncStatusUI();
+      closeSettingsModal();
+      loadTransactions();
+      showToast(I18N[currentLang].syncSuccess);
+    }
+
+    function updateSyncStatusUI() {
+      const badge = document.getElementById('syncStatusBadge');
+      const t = I18N[currentLang];
+      if (appSettings.supaUrl && appSettings.supaKey) {
+        badge.textContent = t.cloudMode;
+        badge.className = 'text-[10px] tracking-wider px-2 py-0.5 rounded-full font-medium border border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-300';
       } else {
-        supabaseClient = null;
-      }
-      updateSyncBadge();
-    }
-
-    function updateSyncBadge() {
-      const badge = document.getElementById('syncBadge');
-      const text = document.getElementById('syncBadgeText');
-      if (supabaseClient) {
-        badge.className = "text-[10px] px-2 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700 flex items-center gap-1";
-        text.textContent = t('cloud_mode');
-      } else {
-        badge.className = "text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700 flex items-center gap-1";
-        text.textContent = t('local_mode');
+        badge.textContent = t.localMode;
+        badge.className = 'text-[10px] tracking-wider px-2 py-0.5 rounded-full font-medium border border-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-300';
       }
     }
 
-    function initDefaultFormDateTime() {
-      const now = new Date();
-      document.getElementById('formDate').value = now.toISOString().slice(0, 10);
-      document.getElementById('formTime').value = now.toTimeString().slice(0, 5);
-      selectCategory('餐飲');
-      selectPayment('現金');
-    }
-
-    // ==========================================
-    // 📊 DATA FETCH & REFRESH
-    // ==========================================
+    // Transactions API & Storage
     async function loadTransactions() {
-      if (supabaseClient) {
+      if (appSettings.supaUrl && appSettings.supaKey) {
         try {
-          const { data, error } = await supabaseClient
-            .from('transactions')
-            .select('*')
-            .order('date', { ascending: false })
-            .order('time', { ascending: false });
-          if (!error && data) {
-            transactions = data;
-            saveLocalCache();
-            renderDashboard();
-            renderTransactions();
-            return;
+          const res = await fetch(`${appSettings.supaUrl}/rest/v1/transactions?select=*&order=date.desc,created_at.desc`, {
+            headers: {
+              'apikey': appSettings.supaKey,
+              'Authorization': `Bearer ${appSettings.supaKey}`
+            }
+          });
+          if (res.ok) {
+            transactions = await res.json();
+            localStorage.setItem('ordine_tx_cache', JSON.stringify(transactions));
           }
-        } catch (e) {
-          console.warn("Supabase fetch failed, fallback to local storage", e);
+        } catch (err) {
+          console.warn('Supabase fetch failed, fallback to local', err);
+          transactions = JSON.parse(localStorage.getItem('ordine_tx_cache') || '[]');
         }
-      }
-
-      // Local storage fallback
-      const local = localStorage.getItem(STORAGE_KEY_TX);
-      if (local) {
-        try {
-          transactions = JSON.parse(local);
-        } catch(e) { transactions = []; }
       } else {
-        // Mock sample data
-        const today = new Date().toISOString().slice(0, 10);
-        transactions = [
-          { id: '1', amount: 120, category: '餐飲', note: '日式拉麵午餐', date: today, time: '12:30', payment_method: '現金' },
-          { id: '2', amount: 65, category: '交通', note: '台北捷運', date: today, time: '08:45', payment_method: '信用卡' },
-          { id: '3', amount: 480, category: '日常', note: '全聯生活雜貨', date: today, time: '19:15', payment_method: '行動支付' }
-        ];
-        saveLocalCache();
+        transactions = JSON.parse(localStorage.getItem('ordine_local_txs') || '[]');
       }
-
-      renderDashboard();
+      updateDashboard();
       renderTransactions();
     }
 
-    function saveLocalCache() {
-      localStorage.setItem(STORAGE_KEY_TX, JSON.stringify(transactions));
+    async function saveTransaction(tx) {
+      if (appSettings.supaUrl && appSettings.supaKey) {
+        try {
+          await fetch(`${appSettings.supaUrl}/rest/v1/transactions`, {
+            method: 'POST',
+            headers: {
+              'apikey': appSettings.supaKey,
+              'Authorization': `Bearer ${appSettings.supaKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'resolution=merge-duplicates'
+            },
+            body: JSON.stringify(tx)
+          });
+        } catch (err) {
+          console.error('Supabase save error', err);
+        }
+      }
+      // Save local
+      const idx = transactions.findIndex(t => t.id === tx.id);
+      if (idx >= 0) transactions[idx] = tx;
+      else transactions.unshift(tx);
+      
+      localStorage.setItem('ordine_local_txs', JSON.stringify(transactions));
+      localStorage.setItem('ordine_tx_cache', JSON.stringify(transactions));
+      updateDashboard();
+      renderTransactions();
     }
 
-    // ==========================================
-    // 📈 DASHBOARD & CHART RENDERING
-    // ==========================================
-    function renderDashboard() {
+    async function deleteTransactionFromDb(id) {
+      if (appSettings.supaUrl && appSettings.supaKey) {
+        try {
+          await fetch(`${appSettings.supaUrl}/rest/v1/transactions?id=eq.${id}`, {
+            method: 'DELETE',
+            headers: {
+              'apikey': appSettings.supaKey,
+              'Authorization': `Bearer ${appSettings.supaKey}`
+            }
+          });
+        } catch (err) {
+          console.error('Supabase delete error', err);
+        }
+      }
+      transactions = transactions.filter(t => t.id !== id);
+      localStorage.setItem('ordine_local_txs', JSON.stringify(transactions));
+      localStorage.setItem('ordine_tx_cache', JSON.stringify(transactions));
+      updateDashboard();
+      renderTransactions();
+    }
+
+    // Dashboard Calculations & Chart
+    function updateDashboard() {
       const now = new Date();
-      const currentYearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+      const daysRemaining = daysInMonth - now.getDate();
 
-      // Filter this month's transactions
-      const monthTx = transactions.filter(t => t.date && t.date.startsWith(currentYearMonth));
-      const totalExpense = monthTx.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+      const t = I18N[currentLang];
+      document.getElementById('daysRemainingText').textContent = t.daysRemaining(daysRemaining);
+      document.getElementById('budgetGoalDisplay').textContent = `NT$ ${Number(appSettings.budget).toLocaleString()}`;
 
-      document.getElementById('monthTotalExpense').textContent = totalExpense.toLocaleString();
-      document.getElementById('budgetTargetDisplay').textContent = monthlyBudget.toLocaleString();
+      // Filter this month txs
+      const monthlyTxs = transactions.filter(tx => {
+        if (!tx.date) return false;
+        const d = new Date(tx.date);
+        return d.getFullYear() === currentYear && (d.getMonth() + 1) === currentMonth;
+      });
 
-      const remaining = monthlyBudget - totalExpense;
-      const budgetRemainingEl = document.getElementById('budgetRemaining');
-      budgetRemainingEl.textContent = `NT$ ${remaining.toLocaleString()}`;
+      const totalMonthlyExpense = monthlyTxs.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+      document.getElementById('totalExpenseDisplay').textContent = totalMonthlyExpense.toLocaleString();
 
-      const percent = Math.min(Math.round((totalExpense / (monthlyBudget || 1)) * 100), 100);
-      document.getElementById('budgetPercent').textContent = `${percent}%`;
+      const remainingBudget = Number(appSettings.budget) - totalMonthlyExpense;
+      document.getElementById('remainingBudgetDisplay').textContent = `NT$ ${remainingBudget.toLocaleString()}`;
 
-      const progressBar = document.getElementById('budgetProgressBar');
-      progressBar.style.width = `${percent}%`;
+      const budgetPct = Math.min(100, Math.round((totalMonthlyExpense / (appSettings.budget || 1)) * 100));
+      document.getElementById('budgetPercentDisplay').textContent = `${budgetPct}%`;
+      document.getElementById('budgetProgressBar').style.width = `${budgetPct}%`;
 
-      const statusText = document.getElementById('budgetStatusText');
-      if (totalExpense > monthlyBudget) {
-        progressBar.className = "h-full bg-rose-500 rounded-full transition-all duration-500";
-        budgetRemainingEl.className = "text-rose-400 font-bold";
-        statusText.className = "text-rose-400 font-medium";
-        statusText.textContent = t('budget_exceeded');
-      } else if (percent > 80) {
-        progressBar.className = "h-full bg-amber-400 rounded-full transition-all duration-500";
-        budgetRemainingEl.className = "text-amber-300 font-bold";
-        statusText.className = "text-amber-300 font-medium";
-        statusText.textContent = t('budget_warning');
+      const pill = document.getElementById('budgetStatusPill');
+      if (budgetPct >= 100) {
+        pill.textContent = t.budgetOver;
+        pill.className = 'text-red-400 font-semibold';
+      } else if (budgetPct >= 80) {
+        pill.textContent = t.budgetWarning;
+        pill.className = 'text-amber-300 font-semibold';
       } else {
-        progressBar.className = "h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full transition-all duration-500";
-        budgetRemainingEl.className = "text-emerald-300 font-bold";
-        statusText.className = "text-emerald-400 font-medium";
-        statusText.textContent = t('budget_good');
+        pill.textContent = t.budgetGood;
+        pill.className = 'text-[var(--hero-accent)] font-semibold';
       }
 
-      // Calculate days remaining in month
-      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-      const daysLeft = Math.max(0, lastDayOfMonth - now.getDate());
-      document.getElementById('monthDaysRemaining').textContent = `${t('days_left_prefix')} ${daysLeft} ${t('days_left_suffix')}`.trim();
+      document.getElementById('txCountBadge').textContent = t.totalTxs(transactions.length);
 
-      // Update Pie Chart Data
-      updateChart(monthTx);
+      // Render Chart
+      renderChart(monthlyTxs);
     }
 
-    function initChart() {
-      const ctx = document.getElementById('categoryPieChart').getContext('2d');
-      pieChart = new Chart(ctx, {
+    function renderChart(txs) {
+      const catTotals = { '餐飲': 0, '交通': 0, '購物': 0, '娛樂': 0, '日常': 0, '其他': 0 };
+      let totalAmount = 0;
+
+      txs.forEach(tx => {
+        const cat = catTotals[tx.category] !== undefined ? tx.category : '其他';
+        const amt = Number(tx.amount || 0);
+        catTotals[cat] += amt;
+        totalAmount += amt;
+      });
+
+      const currentPalette = THEME_PALETTES[currentTheme] || THEME_PALETTES.oat;
+      const dataValues = CATEGORIES.map(c => catTotals[c.key]);
+
+      // Find top category
+      let topCat = '餐飲';
+      let maxVal = 0;
+      CATEGORIES.forEach(c => {
+        if (catTotals[c.key] > maxVal) {
+          maxVal = catTotals[c.key];
+          topCat = c.key;
+        }
+      });
+      const topPct = totalAmount > 0 ? Math.round((maxVal / totalAmount) * 100) : 0;
+      document.getElementById('chartCenterPercent').textContent = `${topPct}%`;
+
+      // Legend Render
+      const legendContainer = document.getElementById('chartLegend');
+      legendContainer.innerHTML = CATEGORIES.map((c, i) => {
+        const amt = catTotals[c.key];
+        const pct = totalAmount > 0 ? Math.round((amt / totalAmount) * 100) : 0;
+        const name = currentLang === 'zh-TW' ? c.key : c.en;
+        return `
+          <div class="flex items-center justify-between py-0.5">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${currentPalette[i]}"></span>
+              <span class="text-[var(--text-sub)] text-xs">${c.icon} ${name}</span>
+            </div>
+            <div class="text-right">
+              <span class="font-semibold num-font text-xs text-[var(--text-main)]">${pct}%</span>
+              <span class="text-[10px] text-[var(--text-sub)] pl-1">NT$${amt.toLocaleString()}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Chart.js instance
+      const ctx = document.getElementById('categoryChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: Object.keys(CATEGORIES).map(cat => getCategoryDisplayName(cat)),
+          labels: CATEGORIES.map(c => currentLang === 'zh-TW' ? c.key : c.en),
           datasets: [{
-            data: [0, 0, 0, 0, 0, 0],
-            backgroundColor: Object.values(CATEGORIES).map(c => c.color),
+            data: totalAmount > 0 ? dataValues : [1],
+            backgroundColor: totalAmount > 0 ? currentPalette : ['#E2E8F0'],
             borderWidth: 2,
-            borderColor: '#ffffff',
+            borderColor: 'var(--card-bg)',
             hoverOffset: 4
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          cutout: '76%',
           plugins: {
-            legend: {
-              position: 'right',
-              labels: {
-                boxWidth: 10,
-                font: { size: 11, family: 'system-ui' },
-                padding: 10
-              }
-            },
+            legend: { display: false },
             tooltip: {
+              enabled: totalAmount > 0,
               callbacks: {
-                label: function(ctx) {
-                  const val = ctx.raw || 0;
-                  return ` NT$ ${val.toLocaleString()}`;
-                }
+                label: (item) => ` ${item.label}: NT$ ${Number(item.raw).toLocaleString()}`
               }
             }
-          },
-          cutout: '68%'
+          }
         }
       });
     }
 
-    function updateChart(monthTx) {
-      if (!pieChart) return;
-      const catKeys = Object.keys(CATEGORIES);
-      const catSums = catKeys.map(cat => {
-        return monthTx
-          .filter(item => item.category === cat)
-          .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    // Render Transaction List
+    function renderTransactions() {
+      const container = document.getElementById('transactionsList');
+      const t = I18N[currentLang];
+
+      const filtered = transactions.filter(tx => {
+        if (currentFilter === 'ALL') return true;
+        return tx.category === currentFilter;
       });
 
-      const total = catSums.reduce((a, b) => a + b, 0);
-      const emptyState = document.getElementById('chartEmptyState');
-      const chartTotalText = document.getElementById('pieChartTotalText');
-
-      chartTotalText.textContent = `${t('total_records_prefix')} ${monthTx.length} ${t('total_records_suffix')}`.trim();
-
-      if (total === 0) {
-        emptyState.classList.remove('hidden');
-        pieChart.data.datasets[0].data = [0, 0, 0, 0, 0, 0];
-      } else {
-        emptyState.classList.add('hidden');
-        pieChart.data.labels = catKeys.map(cat => getCategoryDisplayName(cat));
-        pieChart.data.datasets[0].data = catSums;
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-10 px-4 custom-card rounded-2xl">
+            <p class="text-3xl mb-2">🌿</p>
+            <p class="text-xs text-[var(--text-sub)]">${t.noData}</p>
+          </div>
+        `;
+        return;
       }
-      pieChart.update();
+
+      container.innerHTML = filtered.map(tx => {
+        const catInfo = CATEGORIES.find(c => c.key === tx.category) || CATEGORIES[5];
+        const catName = currentLang === 'zh-TW' ? catInfo.key : catInfo.en;
+        const currentPalette = THEME_PALETTES[currentTheme] || THEME_PALETTES.oat;
+        const badgeColor = currentPalette[catInfo.colorIdx];
+
+        return `
+          <div onclick="openEditModal('${tx.id}')" class="custom-card p-3.5 rounded-2xl flex items-center justify-between active:scale-[0.99] transition-all cursor-pointer hover:border-[var(--brand-accent)]">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0" style="background-color: ${badgeColor}18; color: ${badgeColor};">
+                ${catInfo.icon}
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="text-xs font-bold text-[var(--text-main)]">${tx.note || catName}</h4>
+                  <span class="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 dark:bg-white/10 text-[var(--text-sub)]">${tx.payment_method || '現金'}</span>
+                </div>
+                <p class="text-[11px] text-[var(--text-sub)] mt-0.5">${tx.date || ''} ${tx.time || ''}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="font-bold text-sm text-[var(--text-main)] num-font">- NT$ ${Number(tx.amount).toLocaleString()}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    // ==========================================
-    // 📝 TRANSACTION LIST RENDERING & FILTER
-    // ==========================================
     function filterCategory(cat) {
       currentFilter = cat;
-      document.querySelectorAll('.category-chip').forEach(btn => {
-        if (btn.getAttribute('data-cat') === cat) {
-          btn.className = "category-chip active px-3 py-1.5 rounded-full font-medium transition-all bg-slate-900 text-white shadow-sm flex-shrink-0 flex items-center gap-1";
+      document.querySelectorAll('.category-pill').forEach(pill => {
+        if (pill.getAttribute('data-cat') === cat) {
+          pill.className = 'category-pill flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white transition-all shadow-sm';
         } else {
-          btn.className = "category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1";
+          pill.className = 'category-pill flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] transition-all';
         }
       });
       renderTransactions();
     }
 
-    function renderTransactions() {
-      const listContainer = document.getElementById('transactionsList');
-      const emptyState = document.getElementById('listEmptyState');
-      const badge = document.getElementById('listCountBadge');
+    // Modals
+    function openAddModal() {
+      const t = I18N[currentLang];
+      document.getElementById('modalTitle').textContent = t.addTxTitle;
+      document.getElementById('txId').value = '';
+      document.getElementById('txAmount').value = '';
+      document.getElementById('txNote').value = '';
+      document.getElementById('smartInput').value = '';
+      document.getElementById('btnDeleteTx').classList.add('hidden');
+      
+      const now = new Date();
+      document.getElementById('txDate').value = now.toISOString().split('T')[0];
+      document.getElementById('txTime').value = now.toTimeString().slice(0, 5);
 
-      const filtered = transactions.filter(t => {
-        if (currentFilter === 'all') return true;
-        return t.category === currentFilter;
-      });
+      selectCategory('餐飲');
+      setPaymentMethod('現金');
 
-      badge.textContent = `${filtered.length} ${t('records_unit')}`;
-
-      if (filtered.length === 0) {
-        listContainer.innerHTML = '';
-        emptyState.classList.remove('hidden');
-        return;
-      }
-
-      emptyState.classList.add('hidden');
-      listContainer.innerHTML = filtered.map(item => {
-        const catInfo = CATEGORIES[item.category] || CATEGORIES['其他'];
-        const displayCategory = getCategoryDisplayName(item.category);
-        const displayPayment = getPaymentDisplayName(item.payment_method || '現金');
-
-        return `
-          <div onclick="openEditModal('${item.id}')" class="group bg-white p-3.5 rounded-2xl border border-slate-100 hover:border-slate-300 active:scale-[0.99] transition-all shadow-sm flex items-center justify-between cursor-pointer">
-            <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-xl bg-slate-50 border border-slate-100 shadow-inner">
-                ${catInfo.icon}
-              </div>
-              <div>
-                <div class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                  <span>${item.note || displayCategory}</span>
-                  <span class="text-[10px] font-normal px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500">${displayPayment}</span>
-                </div>
-                <div class="text-[11px] text-slate-400 mt-0.5 flex items-center gap-2">
-                  <span>${displayCategory}</span>
-                  <span>•</span>
-                  <span>${item.date} ${item.time || ''}</span>
-                </div>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="font-extrabold text-slate-900 text-sm">
-                - NT$ ${Number(item.amount).toLocaleString()}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      lucide.createIcons();
+      const modal = document.getElementById('txModal');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.querySelector('.modal-sheet').classList.remove('translate-y-full');
+      }, 10);
     }
 
-    // ==========================================
-    // 🧠 SMART NLP & SPEECH RECOGNITION
-    // ==========================================
+    function openEditModal(id) {
+      const tx = transactions.find(t => t.id === id);
+      if (!tx) return;
+
+      const t = I18N[currentLang];
+      document.getElementById('modalTitle').textContent = t.editTxTitle;
+      document.getElementById('txId').value = tx.id;
+      document.getElementById('txAmount').value = tx.amount;
+      document.getElementById('txNote').value = tx.note || '';
+      document.getElementById('txDate').value = tx.date || '';
+      document.getElementById('txTime').value = tx.time || '';
+      document.getElementById('btnDeleteTx').classList.remove('hidden');
+
+      selectCategory(tx.category || '餐飲');
+      setPaymentMethod(tx.payment_method || '現金');
+
+      const modal = document.getElementById('txModal');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.querySelector('.modal-sheet').classList.remove('translate-y-full');
+      }, 10);
+    }
+
+    function closeTxModal() {
+      const modal = document.getElementById('txModal');
+      modal.querySelector('.modal-sheet').classList.add('translate-y-full');
+      modal.classList.add('opacity-0');
+      setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    function openSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.querySelector('.modal-sheet').classList.remove('translate-y-full');
+      }, 10);
+    }
+
+    function closeSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      modal.querySelector('.modal-sheet').classList.add('translate-y-full');
+      modal.classList.add('opacity-0');
+      setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    // Save & Delete Form Handlers
+    function handleSaveTransaction(e) {
+      e.preventDefault();
+      const id = document.getElementById('txId').value || ('tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6));
+      const amount = Number(document.getElementById('txAmount').value);
+      const category = document.getElementById('txCategory').value;
+      const note = document.getElementById('txNote').value.trim();
+      const date = document.getElementById('txDate').value;
+      const time = document.getElementById('txTime').value;
+      const payment_method = document.getElementById('txPayment').value;
+
+      const tx = { id, amount, category, note, date, time, payment_method, updated_at: new Date().toISOString() };
+      saveTransaction(tx);
+      closeTxModal();
+      showToast(I18N[currentLang].saveSuccess);
+    }
+
+    function handleDeleteTransaction() {
+      const id = document.getElementById('txId').value;
+      if (!id) return;
+      deleteTransactionFromDb(id);
+      closeTxModal();
+      showToast(I18N[currentLang].deleteSuccess);
+    }
+
+    function addAmount(delta) {
+      const input = document.getElementById('txAmount');
+      const val = Number(input.value || 0);
+      input.value = val + delta;
+    }
+
+    // Smart Text NLP & Voice Recognition
     function parseSmartInput() {
-      const input = document.getElementById('smartInput').value.trim();
-      if (!input) return;
+      const text = document.getElementById('smartInput').value.trim();
+      if (!text) return;
 
-      // Extract amount (e.g. 150, 1490, 50.5)
-      const amountMatch = input.match(/\d+(\.\d+)?/);
-      if (!amountMatch) {
-        showToast(t('toast_parse_error'));
-        return;
-      }
-      const amount = amountMatch[0];
-      document.getElementById('formAmount').value = amount;
-
-      // Intelligent category & keyword inference (Bilingual)
-      const text = input.toLowerCase();
-      let matchedCategory = '餐飲';
-
-      if (/(交通|高鐵|捷運|公車|計程車|uber|油錢|加油|停車|火車|機票|transport|taxi|mrt|bus|gas|train|subway|flight|parking)/.test(text)) {
-        matchedCategory = '交通';
-      } else if (/(購物|買|網購|衣服|鞋|蝦皮|momo|淘寶|shopping|clothes|shoes|amazon|buy|store)/.test(text)) {
-        matchedCategory = '購物';
-      } else if (/(娛樂|電影|遊戲|唱歌|ktv|門票|steam|netflix|switch|disney|entertainment|movie|game|party|concert|fun)/.test(text)) {
-        matchedCategory = '娛樂';
-      } else if (/(日常|超市|全聯|家樂福|水電|房租|日用品|雜貨|藥|living|daily|rent|utility|grocery|mart|supermarket|pharmacy)/.test(text)) {
-        matchedCategory = '日常';
-      } else if (/(其他|轉帳|手續費|捐款|other|misc|fee|donation)/.test(text)) {
-        matchedCategory = '其他';
-      } else if (/(餐|飯|麵|早餐|午餐|晚餐|宵夜|麥當勞|星巴克|咖啡|飲料|吃|喝|food|lunch|dinner|breakfast|meal|coffee|starbucks|mcdonald|burger|cafe|restaurant|drink)/.test(text)) {
-        matchedCategory = '餐飲';
-      }
-      selectCategory(matchedCategory);
-
-      // Payment method inference
-      if (/(信用卡|刷卡|credit|card)/.test(text)) {
-        selectPayment('信用卡');
-      } else if (/(行動支付|line pay|apple pay|街口|pay|mobile)/.test(text)) {
-        selectPayment('行動支付');
-      } else if (/(現金|cash)/.test(text)) {
-        selectPayment('現金');
+      // Extract amount
+      const numMatch = text.match(/(\d+(\.\d+)?)/);
+      if (numMatch) {
+        document.getElementById('txAmount').value = numMatch[1];
       }
 
-      // Clean text for store/note
-      let note = input
-        .replace(amountMatch[0], '')
-        .replace(/(信用卡|現金|行動支付|line pay|apple pay|credit card|cash)/gi, '')
+      // Extract Payment Method
+      if (/信用卡|card|credit/i.test(text)) setPaymentMethod('信用卡');
+      else if (/line pay|apple pay|街口|行動支付|mobile pay/i.test(text)) setPaymentMethod('行動支付');
+      else if (/現金|cash/i.test(text)) setPaymentMethod('現金');
+
+      // Extract Category & Note
+      let matchedCat = null;
+      if (/早餐|午餐|晚餐|飯|麵|咖啡|星巴克|麥當勞|肯德基|喝|吃|餐廳|food|lunch|dinner|breakfast|coffee|mcdonald/i.test(text)) {
+        matchedCat = '餐飲';
+      } else if (/捷運|公車|計程車|uber|高鐵|火車|加油|停車|交通|transport|taxi|gas|metro|bus/i.test(text)) {
+        matchedCat = '交通';
+      } else if (/買|衣服|鞋|包|購物|全聯|家樂福|蝦皮|amazon|shop|store|clothes/i.test(text)) {
+        matchedCat = '購物';
+      } else if (/電影|劇|遊戲|蒸氣|netflix|switch|ktv|娛樂|play|game|movie/i.test(text)) {
+        matchedCat = '娛樂';
+      } else if (/水電|房租|雜物|藥|日常|生活|rent|bill|grocery|living/i.test(text)) {
+        matchedCat = '日常';
+      }
+
+      if (matchedCat) selectCategory(matchedCat);
+
+      // Clean remaining text for note
+      let note = text
+        .replace(/(\d+(\.\d+)?)/g, '')
+        .replace(/信用卡|card|credit|line pay|apple pay|街口|行動支付|mobile pay|現金|cash/gi, '')
         .trim();
-      if (!note) note = matchedCategory;
-      document.getElementById('formNote').value = note;
+      if (note) document.getElementById('txNote').value = note;
 
-      showToast(`✨ ${t('parse_btn')}：$${amount} (${getCategoryDisplayName(matchedCategory)})`);
+      showToast('智慧填入成功 ✨');
     }
 
-    // Web Speech API Voice Recognition
-    let recognition = null;
-    let isListening = false;
-
-    function toggleVoiceRecognition() {
+    function startVoiceRecognition() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert(currentLang === 'zh-TW' ? '您的瀏覽器不支援語音辨識功能' : 'Voice recognition not supported');
+        return;
+      }
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        showToast(t('toast_voice_error'));
-        return;
-      }
-
-      const voiceBtn = document.getElementById('voiceBtn');
-
-      if (isListening && recognition) {
-        recognition.stop();
-        return;
-      }
-
       recognition = new SpeechRecognition();
       recognition.lang = currentLang === 'zh-TW' ? 'zh-TW' : 'en-US';
       recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
 
-      recognition.onstart = function() {
-        isListening = true;
-        voiceBtn.className = "p-2 bg-rose-500 text-white rounded-xl animate-pulse";
-        showToast(currentLang === 'zh-TW' ? '🎙️ 聆聽中，請說出內容 (如: 午餐 麥當勞 150)...' : '🎙️ Listening, please speak (e.g. Lunch Burger 150)...');
-      };
+      const hint = document.getElementById('voiceHint');
+      hint.classList.remove('hidden');
 
-      recognition.onresult = function(event) {
+      recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         document.getElementById('smartInput').value = transcript;
         parseSmartInput();
       };
 
-      recognition.onerror = function() {
-        showToast(t('toast_voice_error'));
-        resetVoiceBtn();
-      };
-
-      recognition.onend = function() {
-        resetVoiceBtn();
-      };
-
+      recognition.onerror = () => { hint.classList.add('hidden'); };
+      recognition.onend = () => { hint.classList.add('hidden'); };
       recognition.start();
     }
 
-    function resetVoiceBtn() {
-      isListening = false;
-      const voiceBtn = document.getElementById('voiceBtn');
-      if (voiceBtn) {
-        voiceBtn.className = "p-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 active:scale-95 transition-all";
-      }
-    }
-
-    // ==========================================
-    // 🛠️ MODAL CONTROLS & FORM SUBMIT
-    // ==========================================
-    function openAddModal() {
-      document.getElementById('modalTitle').textContent = t('modal_add_title');
-      document.getElementById('btnSaveSubmit').textContent = t('btn_save');
-      document.getElementById('editExpenseId').value = '';
-      document.getElementById('formAmount').value = '';
-      document.getElementById('formNote').value = '';
-      document.getElementById('smartInput').value = '';
-      document.getElementById('btnDeleteExpense').classList.add('hidden');
-      initDefaultFormDateTime();
-      showModal('expenseModal');
-    }
-
-    function openEditModal(id) {
-      const item = transactions.find(t => t.id === id);
-      if (!item) return;
-
-      document.getElementById('modalTitle').textContent = t('modal_edit_title');
-      document.getElementById('btnSaveSubmit').textContent = t('btn_update');
-      document.getElementById('editExpenseId').value = item.id;
-      document.getElementById('formAmount').value = item.amount;
-      document.getElementById('formNote').value = item.note || '';
-      document.getElementById('formDate').value = item.date;
-      document.getElementById('formTime').value = item.time || '12:00';
-      document.getElementById('smartInput').value = '';
-      selectCategory(item.category);
-      selectPayment(item.payment_method || '現金');
-
-      document.getElementById('btnDeleteExpense').classList.remove('hidden');
-      showModal('expenseModal');
-    }
-
-    function closeExpenseModal() {
-      hideModal('expenseModal');
-    }
-
-    function openSettingsModal() {
-      showModal('settingsModal');
-    }
-
-    function closeSettingsModal() {
-      hideModal('settingsModal');
-    }
-
-    function showModal(id) {
-      const el = document.getElementById(id);
-      el.classList.remove('hidden');
-      setTimeout(() => {
-        el.firstElementChild.classList.remove('opacity-0', 'translate-y-8');
-      }, 10);
-    }
-
-    function hideModal(id) {
-      const el = document.getElementById(id);
-      el.classList.add('hidden');
-    }
-
-    function selectCategory(cat) {
-      document.getElementById('formCategory').value = cat;
-      document.querySelectorAll('#categorySelectionGrid .cat-btn').forEach(btn => {
-        if (btn.getAttribute('data-category') === cat) {
-          btn.className = "cat-btn p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 flex items-center gap-2 text-xs font-bold transition-all shadow-sm";
-        } else {
-          btn.className = "cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all";
-        }
-      });
-    }
-
-    function selectPayment(method) {
-      document.getElementById('formPayment').value = method;
-      document.querySelectorAll('#paymentSelectionGrid .pay-btn').forEach(btn => {
-        if (btn.getAttribute('data-payment') === method) {
-          btn.className = "pay-btn p-2 rounded-xl border-2 border-slate-900 bg-slate-900 text-white text-xs font-bold text-center transition-all shadow-sm";
-        } else {
-          btn.className = "pay-btn p-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 text-center hover:bg-slate-50 transition-all";
-        }
-      });
-    }
-
-    function addAmount(delta) {
-      const input = document.getElementById('formAmount');
-      const current = parseFloat(input.value) || 0;
-      input.value = current + delta;
-    }
-
-    async function handleFormSubmit(e) {
-      e.preventDefault();
-      const id = document.getElementById('editExpenseId').value || crypto.randomUUID();
-      const amount = parseFloat(document.getElementById('formAmount').value) || 0;
-      const category = document.getElementById('formCategory').value;
-      const note = document.getElementById('formNote').value.trim() || category;
-      const date = document.getElementById('formDate').value;
-      const time = document.getElementById('formTime').value;
-      const payment_method = document.getElementById('formPayment').value;
-
-      const record = { id, amount, category, note, date, time, payment_method };
-
-      // Supabase Cloud Sync
-      if (supabaseClient) {
-        try {
-          const { error } = await supabaseClient.from('transactions').upsert(record);
-          if (error) throw error;
-        } catch (err) {
-          console.error("Supabase sync error:", err);
-        }
-      }
-
-      // Update Local State
-      const existingIdx = transactions.findIndex(t => t.id === id);
-      if (existingIdx >= 0) {
-        transactions[existingIdx] = record;
-        showToast(t('toast_updated'));
-      } else {
-        transactions.unshift(record);
-        showToast(t('toast_saved'));
-      }
-
-      // Sort by date & time desc
-      transactions.sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')));
-      saveLocalCache();
-      renderDashboard();
-      renderTransactions();
-      closeExpenseModal();
-    }
-
-    async function handleDeleteExpense() {
-      const id = document.getElementById('editExpenseId').value;
-      if (!id) return;
-
-      if (supabaseClient) {
-        try {
-          await supabaseClient.from('transactions').delete().eq('id', id);
-        } catch (e) {
-          console.error("Supabase delete error:", e);
-        }
-      }
-
-      transactions = transactions.filter(t => t.id !== id);
-      saveLocalCache();
-      renderDashboard();
-      renderTransactions();
-      closeExpenseModal();
-      showToast(t('toast_deleted'));
-    }
-
-    async function saveSettings() {
-      const budget = parseFloat(document.getElementById('settingBudgetTarget').value) || 20000;
-      monthlyBudget = budget;
-      localStorage.setItem(STORAGE_KEY_BUDGET, budget.toString());
-
-      const url = document.getElementById('settingSupabaseUrl').value.trim();
-      const key = document.getElementById('settingSupabaseKey').value.trim();
-      supabaseConfig = { url, key };
-      localStorage.setItem(STORAGE_KEY_SUPABASE, JSON.stringify(supabaseConfig));
-
-      initSupabase();
-      await loadTransactions();
-      closeSettingsModal();
-      showToast(t('toast_settings_saved'));
-    }
-
-    // ==========================================
-    // 📥 EXPORT CSV
-    // ==========================================
-    function exportToCSV() {
+    // Export CSV
+    function exportCSV() {
       if (transactions.length === 0) {
-        showToast(t('empty_transactions'));
+        showToast(currentLang === 'zh-TW' ? '尚無資料可匯出' : 'No data to export');
         return;
       }
-
-      const headers = ['ID', 'Date', 'Time', 'Category', 'Note', 'Amount', 'PaymentMethod'];
+      const headers = ['ID', 'Date', 'Time', 'Category', 'Note', 'Amount', 'Payment Method'];
       const rows = transactions.map(t => [
-        `"${t.id}"`,
-        `"${t.date}"`,
-        `"${t.time || ''}"`,
-        `"${t.category}"`,
+        t.id,
+        t.date || '',
+        t.time || '',
+        t.category || '',
         `"${(t.note || '').replace(/"/g, '""')}"`,
         t.amount,
-        `"${t.payment_method || ''}"`
+        t.payment_method || ''
       ]);
 
-      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
-        + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-
+      const csvContent = 'data:text/csv;charset=utf-8,﻿' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement('a');
       link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `Ordine_Expenses_${new Date().toISOString().slice(0, 10)}.csv`);
+      link.setAttribute('download', `Ordine_Expense_${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      showToast(t('toast_csv_exported'));
     }
 
-    // ==========================================
-    // 🍞 TOAST NOTIFICATION
-    // ==========================================
-    let toastTimeout = null;
-    function showToast(message) {
-      const toast = document.getElementById('toastNotification');
-      document.getElementById('toastMessage').textContent = message;
-      toast.classList.remove('-translate-y-16', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-
-      if (toastTimeout) clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('-translate-y-16', 'opacity-0');
-      }, 3000);
+    // Toast Notification Helper
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full text-xs font-semibold shadow-2xl border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] backdrop-blur-md opacity-100 transform translate-y-0 transition-all duration-300 pointer-events-auto';
+      setTimeout(() => {
+        toast.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full text-xs font-semibold shadow-2xl border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-main)] backdrop-blur-md opacity-0 transform -translate-y-2 pointer-events-none transition-all duration-300';
+      }, 2200);
     }
   </script>
 </body>
