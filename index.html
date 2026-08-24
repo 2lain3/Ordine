@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>歸序 Ordine - 現代簡約個人記帳 | Minimalist Expense Tracker</title>
+  
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="歸序 Ordine" />
+  <meta name="theme-color" content="#ffffff" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Supabase Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Safe Area Padding for iPhone notch */
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+    .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="h-full text-slate-800 antialiased selection:bg-emerald-500 selection:text-white flex flex-col justify-between">
+
+  <!-- Main Container (Mobile Max Width) -->
+  <div class="w-full max-w-md mx-auto min-h-screen flex flex-col bg-white shadow-2xl relative">
+    
+    <!-- Top Header -->
+    <header class="pt-safe px-5 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur-md z-30">
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+          <span>歸序 <span class="text-sm font-semibold text-emerald-600 font-serif tracking-wider">Ordine</span></span>
+          <span id="syncBadge" class="text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+            <span id="syncBadgeText">本地模式</span>
+          </span>
+        </h1>
+        <p class="text-xs text-slate-500" id="currentDateDisplay">Loading...</p>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <!-- Language Switcher Button -->
+        <button id="langToggleBtn" onclick="toggleLanguage()" class="text-xs font-semibold px-2.5 py-1.5 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-1">
+          <i data-lucide="globe" class="w-3.5 h-3.5 text-emerald-600"></i>
+          <span id="langBtnText">EN</span>
+        </button>
+        <!-- Settings Button -->
+        <button onclick="openSettingsModal()" class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors active:scale-95" title="Settings">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Content Area -->
+    <main class="flex-1 px-4 py-4 space-y-4 overflow-y-auto no-scrollbar pb-28">
+
+      <!-- 1. Monthly Summary & Budget Card -->
+      <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white rounded-3xl p-5 shadow-lg relative overflow-hidden">
+        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <span class="text-xs font-medium text-slate-400 tracking-wider uppercase" data-i18n="monthly_expense">本月總支出</span>
+            <div class="text-3xl font-extrabold tracking-tight mt-1">
+              <span class="text-emerald-400 text-xl font-normal">NT$</span> <span id="monthTotalExpense">0</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400" data-i18n="budget_target">目標預算</span>
+            <div class="text-sm font-semibold text-slate-200 mt-0.5">
+              NT$ <span id="budgetTargetDisplay">20,000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Budget Progress Bar -->
+        <div class="space-y-1.5 mt-4">
+          <div class="flex justify-between text-xs text-slate-300">
+            <span><span data-i18n="remaining_budget">剩餘預算</span>: <b id="budgetRemaining" class="text-emerald-300">NT$ 20,000</b></span>
+            <span id="budgetPercent">0%</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-700/60 rounded-full overflow-hidden p-0.5">
+            <div id="budgetProgressBar" class="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-400 pt-0.5">
+            <span id="monthDaysRemaining">本月剩餘 0 天</span>
+            <span id="budgetStatusText" class="text-emerald-400 font-medium">預算控制良好</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Pie Chart Section (Category Breakdown) -->
+      <section class="bg-white rounded-3xl p-4 border border-slate-100 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+            <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-600"></i>
+            <span data-i18n="category_breakdown">分類支出佔比</span>
+          </h2>
+          <span class="text-xs text-slate-400" id="pieChartTotalText">共 0 筆明細</span>
+        </div>
+        
+        <!-- Chart Canvas Container -->
+        <div class="relative h-44 w-full flex items-center justify-center my-1">
+          <canvas id="categoryPieChart"></canvas>
+          <div id="chartEmptyState" class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 text-xs hidden">
+            <i data-lucide="inbox" class="w-8 h-8 mb-1 opacity-50"></i>
+            <span data-i18n="no_chart_data">本月尚無消費資料</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Category Filter Chips -->
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 text-xs">
+        <button onclick="filterCategory('all')" class="category-chip active px-3 py-1.5 rounded-full font-medium transition-all bg-slate-900 text-white shadow-sm flex-shrink-0" data-cat="all" data-i18n="cat_all">
+          全部
+        </button>
+        <button onclick="filterCategory('餐飲')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="餐飲">
+          🍔 <span data-i18n="cat_food">餐飲</span>
+        </button>
+        <button onclick="filterCategory('交通')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="交通">
+          🚗 <span data-i18n="cat_transport">交通</span>
+        </button>
+        <button onclick="filterCategory('購物')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="購物">
+          🛍️ <span data-i18n="cat_shopping">購物</span>
+        </button>
+        <button onclick="filterCategory('娛樂')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="娛樂">
+          🎮 <span data-i18n="cat_entertainment">娛樂</span>
+        </button>
+        <button onclick="filterCategory('日常')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="日常">
+          🏠 <span data-i18n="cat_living">日常</span>
+        </button>
+        <button onclick="filterCategory('其他')" class="category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1" data-cat="其他">
+          ✨ <span data-i18n="cat_other">其他</span>
+        </button>
+      </div>
+
+      <!-- 4. Recent Transactions List -->
+      <section class="space-y-2">
+        <div class="flex items-center justify-between px-1">
+          <h2 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+            <i data-lucide="clock" class="w-4 h-4 text-emerald-600"></i>
+            <span data-i18n="recent_records">近期消費明細</span>
+          </h2>
+          <span class="text-xs text-slate-400" id="listCountBadge">0 筆紀錄</span>
+        </div>
+
+        <div id="transactionsList" class="space-y-2.5">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div id="listEmptyState" class="py-12 flex flex-col items-center justify-center text-slate-400 space-y-2 hidden">
+          <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-300">
+            <i data-lucide="receipt" class="w-6 h-6"></i>
+          </div>
+          <p class="text-sm font-medium" data-i18n="empty_transactions">尚無此分類消費紀錄</p>
+          <p class="text-xs text-slate-400" data-i18n="empty_tip">點擊右下角「+」或使用語音開始記帳</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Floating Action Button (FAB) -->
+    <div class="fixed bottom-6 right-6 z-40 max-w-md mx-auto">
+      <button onclick="openAddModal()" class="w-14 h-14 bg-gradient-to-tr from-emerald-600 to-teal-500 text-white rounded-full shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-emerald-500/30 focus:outline-none focus:ring-4 focus:ring-emerald-200">
+        <i data-lucide="plus" class="w-7 h-7 stroke-[2.5]"></i>
+      </button>
+    </div>
+
+    <!-- Modal: Add / Edit Transaction (Bottom Sheet on Mobile) -->
+    <div id="expenseModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-end sm:items-center justify-center transition-all duration-300">
+      <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto transform transition-all pb-safe">
+        
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span id="modalIconContainer" class="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+              <i data-lucide="edit-3" class="w-5 h-5"></i>
+            </span>
+            <h3 id="modalTitle" class="text-lg font-bold text-slate-800" data-i18n="modal_add_title">新增記帳</h3>
+          </div>
+          <button onclick="closeExpenseModal()" class="p-2 text-slate-400 hover:text-slate-600 rounded-full">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Smart NLP / Voice Bar -->
+        <div class="mt-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl p-2.5">
+          <div class="flex items-center justify-between text-xs text-slate-500 mb-1.5 px-1">
+            <span class="flex items-center gap-1 font-medium text-emerald-700">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              <span data-i18n="smart_entry_title">智慧語音 / 文字解析</span>
+            </span>
+            <span class="text-[10px] text-slate-400" data-i18n="smart_entry_example">例：午餐 麥當勞 150 信用卡</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="text" id="smartInput" placeholder="輸入或說出：麥當勞 150 信用卡..." 
+                   class="flex-1 bg-white text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-slate-800"
+                   onkeydown="if(event.key==='Enter'){event.preventDefault(); parseSmartInput();}">
+            <button type="button" onclick="parseSmartInput()" class="px-2.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-medium hover:bg-slate-800 active:scale-95" data-i18n="parse_btn">
+              解析
+            </button>
+            <button type="button" id="voiceBtn" onclick="toggleVoiceRecognition()" class="p-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 active:scale-95 transition-all" title="Voice Input">
+              <i data-lucide="mic" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Form Elements -->
+        <form id="expenseForm" onsubmit="handleFormSubmit(event)" class="mt-4 space-y-4">
+          <input type="hidden" id="editExpenseId" value="">
+
+          <!-- Amount Input -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="amount_label">金額 (NT$)</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">$</span>
+              <input type="number" step="any" id="formAmount" required placeholder="0" 
+                     class="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-2xl font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
+            </div>
+            <!-- Quick Amount Increment Pills -->
+            <div class="flex gap-2 mt-2">
+              <button type="button" onclick="addAmount(50)" class="px-2.5 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-medium">+50</button>
+              <button type="button" onclick="addAmount(100)" class="px-2.5 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-medium">+100</button>
+              <button type="button" onclick="addAmount(500)" class="px-2.5 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-medium">+500</button>
+              <button type="button" onclick="addAmount(1000)" class="px-2.5 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-medium">+1000</button>
+            </div>
+          </div>
+
+          <!-- Category Selection -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5" data-i18n="category_label">分類</label>
+            <div class="grid grid-cols-3 gap-2" id="categorySelectionGrid">
+              <button type="button" onclick="selectCategory('餐飲')" data-category="餐飲" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
+                <span class="text-base">🍔</span> <span data-i18n="cat_food">餐飲</span>
+              </button>
+              <button type="button" onclick="selectCategory('交通')" data-category="交通" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
+                <span class="text-base">🚗</span> <span data-i18n="cat_transport">交通</span>
+              </button>
+              <button type="button" onclick="selectCategory('購物')" data-category="購物" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
+                <span class="text-base">🛍️</span> <span data-i18n="cat_shopping">購物</span>
+              </button>
+              <button type="button" onclick="selectCategory('娛樂')" data-category="娛樂" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
+                <span class="text-base">🎮</span> <span data-i18n="cat_entertainment">娛樂</span>
+              </button>
+              <button type="button" onclick="selectCategory('日常')" data-category="日常" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
+                <span class="text-base">🏠</span> <span data-i18n="cat_living">日常</span>
+              </button>
+              <button type="button" onclick="selectCategory('其他')" data-category="其他" class="cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all">
+                <span class="text-base">✨</span> <span data-i18n="cat_other">其他</span>
+              </button>
+            </div>
+            <input type="hidden" id="formCategory" value="餐飲" required>
+          </div>
+
+          <!-- Note / Store -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="note_label">店家 / 備註</label>
+            <input type="text" id="formNote" placeholder="例如：麥當勞、全聯、加油..." 
+                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <!-- Date & Time Row -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="date_label">日期</label>
+              <input type="date" id="formDate" required
+                     class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="time_label">時間</label>
+              <input type="time" id="formTime" required
+                     class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5" data-i18n="payment_label">支付方式</label>
+            <div class="grid grid-cols-3 gap-2" id="paymentSelectionGrid">
+              <button type="button" onclick="selectPayment('現金')" data-payment="現金" class="pay-btn p-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 text-center hover:bg-slate-50 transition-all">
+                💵 <span data-i18n="pay_cash">現金</span>
+              </button>
+              <button type="button" onclick="selectPayment('信用卡')" data-payment="信用卡" class="pay-btn p-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 text-center hover:bg-slate-50 transition-all">
+                💳 <span data-i18n="pay_credit">信用卡</span>
+              </button>
+              <button type="button" onclick="selectPayment('行動支付')" data-payment="行動支付" class="pay-btn p-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 text-center hover:bg-slate-50 transition-all">
+                📱 <span data-i18n="pay_mobile">行動支付</span>
+              </button>
+            </div>
+            <input type="hidden" id="formPayment" value="現金">
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-2 pt-2">
+            <button type="button" id="btnDeleteExpense" onclick="handleDeleteExpense()" class="px-4 py-3 bg-rose-50 text-rose-600 rounded-2xl font-bold text-sm hover:bg-rose-100 active:scale-95 transition-all hidden" data-i18n="btn_delete">
+              刪除
+            </button>
+            <button type="button" onclick="closeExpenseModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 active:scale-95 transition-all" data-i18n="btn_cancel">
+              取消
+            </button>
+            <button type="submit" class="flex-1 py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 active:scale-95 shadow-md shadow-slate-900/20 transition-all" id="btnSaveSubmit" data-i18n="btn_save">
+              儲存記帳
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+    <!-- Modal: Settings & Database Configuration -->
+    <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-end sm:items-center justify-center transition-all duration-300">
+      <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto transform transition-all pb-safe">
+        
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="p-2 rounded-xl bg-slate-100 text-slate-800">
+              <i data-lucide="sliders" class="w-5 h-5"></i>
+            </span>
+            <h3 class="text-lg font-bold text-slate-800" data-i18n="settings_title">資料庫與預算設定</h3>
+          </div>
+          <button onclick="closeSettingsModal()" class="p-2 text-slate-400 hover:text-slate-600 rounded-full">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="mt-4 space-y-4">
+          <!-- Monthly Budget Setting -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1" data-i18n="monthly_budget_label">每月目標預算 (NT$)</label>
+            <input type="number" id="settingBudgetTarget" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <!-- Supabase Config -->
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <i data-lucide="database" class="w-4 h-4 text-emerald-600"></i>
+                <span data-i18n="supabase_title">Supabase 雲端資料庫</span>
+              </span>
+              <span class="text-[10px] text-slate-500" data-i18n="optional_tag">(選填 / iOS捷徑用)</span>
+            </div>
+            
+            <p class="text-[11px] text-slate-500 leading-relaxed" data-i18n="supabase_desc">
+              填入 Supabase URL 與 Anon Key 後將自動切換為雲端模式，並支援外部 iOS 捷徑同步。留空則自動保存於本機。
+            </p>
+
+            <div>
+              <label class="block text-[11px] font-medium text-slate-600 mb-0.5">Project URL</label>
+              <input type="text" id="settingSupabaseUrl" placeholder="https://your-project.supabase.co" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800">
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-medium text-slate-600 mb-0.5">Anon Public Key</label>
+              <input type="password" id="settingSupabaseKey" placeholder="eyJhbGciOiJIUzI1NiIsIn..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800">
+            </div>
+          </div>
+
+          <!-- Export CSV -->
+          <div class="pt-1">
+            <button onclick="exportToCSV()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span data-i18n="btn_export_csv">一鍵匯出 CSV 試算表</span>
+            </button>
+          </div>
+
+          <!-- Save Button -->
+          <div class="pt-2">
+            <button onclick="saveSettings()" class="w-full py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all" data-i18n="btn_save_settings">
+              儲存設定並同步
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-full text-xs font-medium shadow-xl flex items-center gap-2 transform -translate-y-16 opacity-0 transition-all duration-300 pointer-events-none">
+      <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+      <span id="toastMessage">操作成功</span>
+    </div>
+
+  </div>
+
+  <!-- JavaScript Logic & i18n -->
+  <script>
+    // ==========================================
+    // 🌐 BILINGUAL i18n DICTIONARY
+    // ==========================================
+    const i18n = {
+      'zh-TW': {
+        brand_title: '歸序',
+        brand_sub: 'Ordine',
+        local_mode: '本地模式',
+        cloud_mode: '雲端已同步',
+        monthly_expense: '本月總支出',
+        budget_target: '目標預算',
+        remaining_budget: '剩餘預算',
+        budget_good: '預算控制良好',
+        budget_warning: '預算已使用超過 80%',
+        budget_exceeded: '⚠️ 已超支！請注意開銷',
+        days_left_prefix: '本月剩餘',
+        days_left_suffix: '天',
+        category_breakdown: '分類支出佔比',
+        total_records_prefix: '共',
+        total_records_suffix: '筆明細',
+        no_chart_data: '本月尚無消費資料',
+        recent_records: '近期消費明細',
+        records_unit: '筆紀錄',
+        empty_transactions: '尚無此分類消費紀錄',
+        empty_tip: '點擊右下角「+」或使用語音開始記帳',
+        modal_add_title: '新增記帳',
+        modal_edit_title: '編輯消費明細',
+        smart_entry_title: '智慧語音 / 文字解析',
+        smart_entry_example: '例：午餐 麥當勞 150 信用卡',
+        smart_placeholder: '輸入或說出：麥當勞 150 信用卡...',
+        parse_btn: '解析',
+        amount_label: '金額 (NT$)',
+        category_label: '分類',
+        note_label: '店家 / 備註',
+        note_placeholder: '例如：麥當勞、全聯、加油...',
+        date_label: '日期',
+        time_label: '時間',
+        payment_label: '支付方式',
+        btn_delete: '刪除',
+        btn_cancel: '取消',
+        btn_save: '儲存記帳',
+        btn_update: '更新紀錄',
+        settings_title: '資料庫與預算設定',
+        monthly_budget_label: '每月目標預算 (NT$)',
+        supabase_title: 'Supabase 雲端資料庫',
+        optional_tag: '(選填 / iOS捷徑用)',
+        supabase_desc: '填入 Supabase URL 與 Anon Key 後將自動切換為雲端模式，並支援外部 iOS 捷徑同步。留空則自動保存於本機。',
+        btn_export_csv: '一鍵匯出 CSV 試算表',
+        btn_save_settings: '儲存設定並同步',
+        cat_all: '全部',
+        cat_food: '餐飲',
+        cat_transport: '交通',
+        cat_shopping: '購物',
+        cat_entertainment: '娛樂',
+        cat_living: '日常',
+        cat_other: '其他',
+        pay_cash: '現金',
+        pay_credit: '信用卡',
+        pay_mobile: '行動支付',
+        toast_saved: '記帳成功！',
+        toast_updated: '更新成功！',
+        toast_deleted: '已刪除紀錄！',
+        toast_settings_saved: '設定已更新並完成同步！',
+        toast_csv_exported: 'CSV 已成功匯出！',
+        toast_parse_error: '未能解析金額，請確認輸入格式 (如: 麥當勞 150)',
+        toast_voice_error: '瀏覽器不支援語音辨識或權限被拒絕'
+      },
+      'en': {
+        brand_title: 'Ordine',
+        brand_sub: '歸序',
+        local_mode: 'Local Mode',
+        cloud_mode: 'Cloud Synced',
+        monthly_expense: 'Monthly Total',
+        budget_target: 'Budget Target',
+        remaining_budget: 'Remaining',
+        budget_good: 'Budget on track',
+        budget_warning: '80% of budget used',
+        budget_exceeded: '⚠️ Over Budget!',
+        days_left_prefix: '',
+        days_left_suffix: ' days left',
+        category_breakdown: 'Category Breakdown',
+        total_records_prefix: '',
+        total_records_suffix: ' entries',
+        no_chart_data: 'No expenses recorded this month',
+        recent_records: 'Recent Transactions',
+        records_unit: 'items',
+        empty_transactions: 'No transactions found',
+        empty_tip: 'Tap "+" or use voice to add an expense',
+        modal_add_title: 'Add Expense',
+        modal_edit_title: 'Edit Transaction',
+        smart_entry_title: 'Smart NLP / Voice Input',
+        smart_entry_example: 'e.g. Lunch McDonald 150 Card',
+        smart_placeholder: 'Type or speak: Starbucks 150 card...',
+        parse_btn: 'Parse',
+        amount_label: 'Amount (NT$)',
+        category_label: 'Category',
+        note_label: 'Store / Note',
+        note_placeholder: 'e.g. Starbucks, Uber, Grocery...',
+        date_label: 'Date',
+        time_label: 'Time',
+        payment_label: 'Payment Method',
+        btn_delete: 'Delete',
+        btn_cancel: 'Cancel',
+        btn_save: 'Save Expense',
+        btn_update: 'Update Entry',
+        settings_title: 'Settings & Database',
+        monthly_budget_label: 'Monthly Target Budget (NT$)',
+        supabase_title: 'Supabase Cloud Database',
+        optional_tag: '(Optional / For iOS Shortcuts)',
+        supabase_desc: 'Enter Supabase URL & Anon Key to sync with cloud and enable iOS Shortcuts API. Leave blank to store locally in browser.',
+        btn_export_csv: 'Export to CSV Spreadsheet',
+        btn_save_settings: 'Save & Sync Settings',
+        cat_all: 'All',
+        cat_food: 'Dining',
+        cat_transport: 'Transport',
+        cat_shopping: 'Shopping',
+        cat_entertainment: 'Entertainment',
+        cat_living: 'Living',
+        cat_other: 'Other',
+        pay_cash: 'Cash',
+        pay_credit: 'Credit Card',
+        pay_mobile: 'Mobile Pay',
+        toast_saved: 'Expense saved successfully!',
+        toast_updated: 'Transaction updated!',
+        toast_deleted: 'Record deleted!',
+        toast_settings_saved: 'Settings saved & synced!',
+        toast_csv_exported: 'CSV exported successfully!',
+        toast_parse_error: 'Could not parse amount. Format: e.g. Lunch 150',
+        toast_voice_error: 'Speech recognition not supported or permission denied'
+      }
+    };
+
+    // Category mapping & UI configuration
+    const CATEGORIES = {
+      '餐飲': { icon: '🍔', en: 'Dining', color: '#f97316' },
+      '交通': { icon: '🚗', en: 'Transport', color: '#3b82f6' },
+      '購物': { icon: '🛍️', en: 'Shopping', color: '#ec4899' },
+      '娛樂': { icon: '🎮', en: 'Entertainment', color: '#8b5cf6' },
+      '日常': { icon: '🏠', en: 'Living', color: '#10b981' },
+      '其他': { icon: '✨', en: 'Other', color: '#64748b' }
+    };
+
+    // Storage Keys
+    const STORAGE_KEY_LANG = 'ordine_lang';
+    const STORAGE_KEY_TX = 'ordine_transactions';
+    const STORAGE_KEY_BUDGET = 'ordine_budget';
+    const STORAGE_KEY_SUPABASE = 'ordine_supabase_config';
+
+    // App State
+    let currentLang = localStorage.getItem(STORAGE_KEY_LANG) || 'zh-TW';
+    let transactions = [];
+    let currentFilter = 'all';
+    let monthlyBudget = 20000;
+    let supabaseConfig = { url: '', key: '' };
+    let supabaseClient = null;
+    let pieChart = null;
+
+    // ==========================================
+    // 🌐 LANGUAGE MANAGEMENT & TRANSLATION
+    // ==========================================
+    function t(key) {
+      return i18n[currentLang][key] || key;
+    }
+
+    function toggleLanguage() {
+      currentLang = (currentLang === 'zh-TW') ? 'en' : 'zh-TW';
+      localStorage.setItem(STORAGE_KEY_LANG, currentLang);
+      applyLanguage();
+    }
+
+    function applyLanguage() {
+      document.documentElement.lang = currentLang;
+      document.getElementById('langBtnText').textContent = (currentLang === 'zh-TW') ? 'EN' : '繁中';
+
+      // Update all static data-i18n elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[currentLang][key]) {
+          el.textContent = i18n[currentLang][key];
+        }
+      });
+
+      // Update Placeholders
+      document.getElementById('smartInput').placeholder = t('smart_placeholder');
+      document.getElementById('formNote').placeholder = t('note_placeholder');
+
+      // Update Header Date
+      updateHeaderDate();
+      // Update UI components
+      updateSyncBadge();
+      renderDashboard();
+      renderTransactions();
+      lucide.createIcons();
+    }
+
+    function updateHeaderDate() {
+      const now = new Date();
+      const options = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' };
+      document.getElementById('currentDateDisplay').textContent = now.toLocaleDateString(currentLang === 'zh-TW' ? 'zh-TW' : 'en-US', options);
+    }
+
+    function getCategoryDisplayName(catKey) {
+      if (currentLang === 'en') {
+        return CATEGORIES[catKey] ? CATEGORIES[catKey].en : catKey;
+      }
+      return catKey;
+    }
+
+    function getPaymentDisplayName(payKey) {
+      if (currentLang === 'en') {
+        if (payKey === '現金') return 'Cash';
+        if (payKey === '信用卡') return 'Credit Card';
+        if (payKey === '行動支付') return 'Mobile Pay';
+      }
+      return payKey;
+    }
+
+    // ==========================================
+    // 🚀 INITIALIZATION
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      loadSettings();
+      initChart();
+      initDefaultFormDateTime();
+      applyLanguage();
+      await loadTransactions();
+    });
+
+    function loadSettings() {
+      const savedBudget = localStorage.getItem(STORAGE_KEY_BUDGET);
+      if (savedBudget) monthlyBudget = parseFloat(savedBudget);
+      document.getElementById('settingBudgetTarget').value = monthlyBudget;
+
+      const savedSupa = localStorage.getItem(STORAGE_KEY_SUPABASE);
+      if (savedSupa) {
+        try {
+          supabaseConfig = JSON.parse(savedSupa);
+          document.getElementById('settingSupabaseUrl').value = supabaseConfig.url || '';
+          document.getElementById('settingSupabaseKey').value = supabaseConfig.key || '';
+          initSupabase();
+        } catch(e){}
+      }
+    }
+
+    function initSupabase() {
+      if (supabaseConfig.url && supabaseConfig.key && window.supabase) {
+        try {
+          supabaseClient = window.supabase.createClient(supabaseConfig.url, supabaseConfig.key);
+        } catch(e) {
+          console.error("Supabase Init Error:", e);
+          supabaseClient = null;
+        }
+      } else {
+        supabaseClient = null;
+      }
+      updateSyncBadge();
+    }
+
+    function updateSyncBadge() {
+      const badge = document.getElementById('syncBadge');
+      const text = document.getElementById('syncBadgeText');
+      if (supabaseClient) {
+        badge.className = "text-[10px] px-2 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700 flex items-center gap-1";
+        text.textContent = t('cloud_mode');
+      } else {
+        badge.className = "text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700 flex items-center gap-1";
+        text.textContent = t('local_mode');
+      }
+    }
+
+    function initDefaultFormDateTime() {
+      const now = new Date();
+      document.getElementById('formDate').value = now.toISOString().slice(0, 10);
+      document.getElementById('formTime').value = now.toTimeString().slice(0, 5);
+      selectCategory('餐飲');
+      selectPayment('現金');
+    }
+
+    // ==========================================
+    // 📊 DATA FETCH & REFRESH
+    // ==========================================
+    async function loadTransactions() {
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('transactions')
+            .select('*')
+            .order('date', { ascending: false })
+            .order('time', { ascending: false });
+          if (!error && data) {
+            transactions = data;
+            saveLocalCache();
+            renderDashboard();
+            renderTransactions();
+            return;
+          }
+        } catch (e) {
+          console.warn("Supabase fetch failed, fallback to local storage", e);
+        }
+      }
+
+      // Local storage fallback
+      const local = localStorage.getItem(STORAGE_KEY_TX);
+      if (local) {
+        try {
+          transactions = JSON.parse(local);
+        } catch(e) { transactions = []; }
+      } else {
+        // Mock sample data
+        const today = new Date().toISOString().slice(0, 10);
+        transactions = [
+          { id: '1', amount: 120, category: '餐飲', note: '日式拉麵午餐', date: today, time: '12:30', payment_method: '現金' },
+          { id: '2', amount: 65, category: '交通', note: '台北捷運', date: today, time: '08:45', payment_method: '信用卡' },
+          { id: '3', amount: 480, category: '日常', note: '全聯生活雜貨', date: today, time: '19:15', payment_method: '行動支付' }
+        ];
+        saveLocalCache();
+      }
+
+      renderDashboard();
+      renderTransactions();
+    }
+
+    function saveLocalCache() {
+      localStorage.setItem(STORAGE_KEY_TX, JSON.stringify(transactions));
+    }
+
+    // ==========================================
+    // 📈 DASHBOARD & CHART RENDERING
+    // ==========================================
+    function renderDashboard() {
+      const now = new Date();
+      const currentYearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+      // Filter this month's transactions
+      const monthTx = transactions.filter(t => t.date && t.date.startsWith(currentYearMonth));
+      const totalExpense = monthTx.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+      document.getElementById('monthTotalExpense').textContent = totalExpense.toLocaleString();
+      document.getElementById('budgetTargetDisplay').textContent = monthlyBudget.toLocaleString();
+
+      const remaining = monthlyBudget - totalExpense;
+      const budgetRemainingEl = document.getElementById('budgetRemaining');
+      budgetRemainingEl.textContent = `NT$ ${remaining.toLocaleString()}`;
+
+      const percent = Math.min(Math.round((totalExpense / (monthlyBudget || 1)) * 100), 100);
+      document.getElementById('budgetPercent').textContent = `${percent}%`;
+
+      const progressBar = document.getElementById('budgetProgressBar');
+      progressBar.style.width = `${percent}%`;
+
+      const statusText = document.getElementById('budgetStatusText');
+      if (totalExpense > monthlyBudget) {
+        progressBar.className = "h-full bg-rose-500 rounded-full transition-all duration-500";
+        budgetRemainingEl.className = "text-rose-400 font-bold";
+        statusText.className = "text-rose-400 font-medium";
+        statusText.textContent = t('budget_exceeded');
+      } else if (percent > 80) {
+        progressBar.className = "h-full bg-amber-400 rounded-full transition-all duration-500";
+        budgetRemainingEl.className = "text-amber-300 font-bold";
+        statusText.className = "text-amber-300 font-medium";
+        statusText.textContent = t('budget_warning');
+      } else {
+        progressBar.className = "h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full transition-all duration-500";
+        budgetRemainingEl.className = "text-emerald-300 font-bold";
+        statusText.className = "text-emerald-400 font-medium";
+        statusText.textContent = t('budget_good');
+      }
+
+      // Calculate days remaining in month
+      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const daysLeft = Math.max(0, lastDayOfMonth - now.getDate());
+      document.getElementById('monthDaysRemaining').textContent = `${t('days_left_prefix')} ${daysLeft} ${t('days_left_suffix')}`.trim();
+
+      // Update Pie Chart Data
+      updateChart(monthTx);
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('categoryPieChart').getContext('2d');
+      pieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(CATEGORIES).map(cat => getCategoryDisplayName(cat)),
+          datasets: [{
+            data: [0, 0, 0, 0, 0, 0],
+            backgroundColor: Object.values(CATEGORIES).map(c => c.color),
+            borderWidth: 2,
+            borderColor: '#ffffff',
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                boxWidth: 10,
+                font: { size: 11, family: 'system-ui' },
+                padding: 10
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  const val = ctx.raw || 0;
+                  return ` NT$ ${val.toLocaleString()}`;
+                }
+              }
+            }
+          },
+          cutout: '68%'
+        }
+      });
+    }
+
+    function updateChart(monthTx) {
+      if (!pieChart) return;
+      const catKeys = Object.keys(CATEGORIES);
+      const catSums = catKeys.map(cat => {
+        return monthTx
+          .filter(item => item.category === cat)
+          .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+      });
+
+      const total = catSums.reduce((a, b) => a + b, 0);
+      const emptyState = document.getElementById('chartEmptyState');
+      const chartTotalText = document.getElementById('pieChartTotalText');
+
+      chartTotalText.textContent = `${t('total_records_prefix')} ${monthTx.length} ${t('total_records_suffix')}`.trim();
+
+      if (total === 0) {
+        emptyState.classList.remove('hidden');
+        pieChart.data.datasets[0].data = [0, 0, 0, 0, 0, 0];
+      } else {
+        emptyState.classList.add('hidden');
+        pieChart.data.labels = catKeys.map(cat => getCategoryDisplayName(cat));
+        pieChart.data.datasets[0].data = catSums;
+      }
+      pieChart.update();
+    }
+
+    // ==========================================
+    // 📝 TRANSACTION LIST RENDERING & FILTER
+    // ==========================================
+    function filterCategory(cat) {
+      currentFilter = cat;
+      document.querySelectorAll('.category-chip').forEach(btn => {
+        if (btn.getAttribute('data-cat') === cat) {
+          btn.className = "category-chip active px-3 py-1.5 rounded-full font-medium transition-all bg-slate-900 text-white shadow-sm flex-shrink-0 flex items-center gap-1";
+        } else {
+          btn.className = "category-chip px-3 py-1.5 rounded-full font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 flex-shrink-0 flex items-center gap-1";
+        }
+      });
+      renderTransactions();
+    }
+
+    function renderTransactions() {
+      const listContainer = document.getElementById('transactionsList');
+      const emptyState = document.getElementById('listEmptyState');
+      const badge = document.getElementById('listCountBadge');
+
+      const filtered = transactions.filter(t => {
+        if (currentFilter === 'all') return true;
+        return t.category === currentFilter;
+      });
+
+      badge.textContent = `${filtered.length} ${t('records_unit')}`;
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      listContainer.innerHTML = filtered.map(item => {
+        const catInfo = CATEGORIES[item.category] || CATEGORIES['其他'];
+        const displayCategory = getCategoryDisplayName(item.category);
+        const displayPayment = getPaymentDisplayName(item.payment_method || '現金');
+
+        return `
+          <div onclick="openEditModal('${item.id}')" class="group bg-white p-3.5 rounded-2xl border border-slate-100 hover:border-slate-300 active:scale-[0.99] transition-all shadow-sm flex items-center justify-between cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-xl bg-slate-50 border border-slate-100 shadow-inner">
+                ${catInfo.icon}
+              </div>
+              <div>
+                <div class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                  <span>${item.note || displayCategory}</span>
+                  <span class="text-[10px] font-normal px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500">${displayPayment}</span>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5 flex items-center gap-2">
+                  <span>${displayCategory}</span>
+                  <span>•</span>
+                  <span>${item.date} ${item.time || ''}</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-extrabold text-slate-900 text-sm">
+                - NT$ ${Number(item.amount).toLocaleString()}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // 🧠 SMART NLP & SPEECH RECOGNITION
+    // ==========================================
+    function parseSmartInput() {
+      const input = document.getElementById('smartInput').value.trim();
+      if (!input) return;
+
+      // Extract amount (e.g. 150, 1490, 50.5)
+      const amountMatch = input.match(/\d+(\.\d+)?/);
+      if (!amountMatch) {
+        showToast(t('toast_parse_error'));
+        return;
+      }
+      const amount = amountMatch[0];
+      document.getElementById('formAmount').value = amount;
+
+      // Intelligent category & keyword inference (Bilingual)
+      const text = input.toLowerCase();
+      let matchedCategory = '餐飲';
+
+      if (/(交通|高鐵|捷運|公車|計程車|uber|油錢|加油|停車|火車|機票|transport|taxi|mrt|bus|gas|train|subway|flight|parking)/.test(text)) {
+        matchedCategory = '交通';
+      } else if (/(購物|買|網購|衣服|鞋|蝦皮|momo|淘寶|shopping|clothes|shoes|amazon|buy|store)/.test(text)) {
+        matchedCategory = '購物';
+      } else if (/(娛樂|電影|遊戲|唱歌|ktv|門票|steam|netflix|switch|disney|entertainment|movie|game|party|concert|fun)/.test(text)) {
+        matchedCategory = '娛樂';
+      } else if (/(日常|超市|全聯|家樂福|水電|房租|日用品|雜貨|藥|living|daily|rent|utility|grocery|mart|supermarket|pharmacy)/.test(text)) {
+        matchedCategory = '日常';
+      } else if (/(其他|轉帳|手續費|捐款|other|misc|fee|donation)/.test(text)) {
+        matchedCategory = '其他';
+      } else if (/(餐|飯|麵|早餐|午餐|晚餐|宵夜|麥當勞|星巴克|咖啡|飲料|吃|喝|food|lunch|dinner|breakfast|meal|coffee|starbucks|mcdonald|burger|cafe|restaurant|drink)/.test(text)) {
+        matchedCategory = '餐飲';
+      }
+      selectCategory(matchedCategory);
+
+      // Payment method inference
+      if (/(信用卡|刷卡|credit|card)/.test(text)) {
+        selectPayment('信用卡');
+      } else if (/(行動支付|line pay|apple pay|街口|pay|mobile)/.test(text)) {
+        selectPayment('行動支付');
+      } else if (/(現金|cash)/.test(text)) {
+        selectPayment('現金');
+      }
+
+      // Clean text for store/note
+      let note = input
+        .replace(amountMatch[0], '')
+        .replace(/(信用卡|現金|行動支付|line pay|apple pay|credit card|cash)/gi, '')
+        .trim();
+      if (!note) note = matchedCategory;
+      document.getElementById('formNote').value = note;
+
+      showToast(`✨ ${t('parse_btn')}：$${amount} (${getCategoryDisplayName(matchedCategory)})`);
+    }
+
+    // Web Speech API Voice Recognition
+    let recognition = null;
+    let isListening = false;
+
+    function toggleVoiceRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        showToast(t('toast_voice_error'));
+        return;
+      }
+
+      const voiceBtn = document.getElementById('voiceBtn');
+
+      if (isListening && recognition) {
+        recognition.stop();
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = currentLang === 'zh-TW' ? 'zh-TW' : 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = function() {
+        isListening = true;
+        voiceBtn.className = "p-2 bg-rose-500 text-white rounded-xl animate-pulse";
+        showToast(currentLang === 'zh-TW' ? '🎙️ 聆聽中，請說出內容 (如: 午餐 麥當勞 150)...' : '🎙️ Listening, please speak (e.g. Lunch Burger 150)...');
+      };
+
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('smartInput').value = transcript;
+        parseSmartInput();
+      };
+
+      recognition.onerror = function() {
+        showToast(t('toast_voice_error'));
+        resetVoiceBtn();
+      };
+
+      recognition.onend = function() {
+        resetVoiceBtn();
+      };
+
+      recognition.start();
+    }
+
+    function resetVoiceBtn() {
+      isListening = false;
+      const voiceBtn = document.getElementById('voiceBtn');
+      if (voiceBtn) {
+        voiceBtn.className = "p-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 active:scale-95 transition-all";
+      }
+    }
+
+    // ==========================================
+    // 🛠️ MODAL CONTROLS & FORM SUBMIT
+    // ==========================================
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = t('modal_add_title');
+      document.getElementById('btnSaveSubmit').textContent = t('btn_save');
+      document.getElementById('editExpenseId').value = '';
+      document.getElementById('formAmount').value = '';
+      document.getElementById('formNote').value = '';
+      document.getElementById('smartInput').value = '';
+      document.getElementById('btnDeleteExpense').classList.add('hidden');
+      initDefaultFormDateTime();
+      showModal('expenseModal');
+    }
+
+    function openEditModal(id) {
+      const item = transactions.find(t => t.id === id);
+      if (!item) return;
+
+      document.getElementById('modalTitle').textContent = t('modal_edit_title');
+      document.getElementById('btnSaveSubmit').textContent = t('btn_update');
+      document.getElementById('editExpenseId').value = item.id;
+      document.getElementById('formAmount').value = item.amount;
+      document.getElementById('formNote').value = item.note || '';
+      document.getElementById('formDate').value = item.date;
+      document.getElementById('formTime').value = item.time || '12:00';
+      document.getElementById('smartInput').value = '';
+      selectCategory(item.category);
+      selectPayment(item.payment_method || '現金');
+
+      document.getElementById('btnDeleteExpense').classList.remove('hidden');
+      showModal('expenseModal');
+    }
+
+    function closeExpenseModal() {
+      hideModal('expenseModal');
+    }
+
+    function openSettingsModal() {
+      showModal('settingsModal');
+    }
+
+    function closeSettingsModal() {
+      hideModal('settingsModal');
+    }
+
+    function showModal(id) {
+      const el = document.getElementById(id);
+      el.classList.remove('hidden');
+      setTimeout(() => {
+        el.firstElementChild.classList.remove('opacity-0', 'translate-y-8');
+      }, 10);
+    }
+
+    function hideModal(id) {
+      const el = document.getElementById(id);
+      el.classList.add('hidden');
+    }
+
+    function selectCategory(cat) {
+      document.getElementById('formCategory').value = cat;
+      document.querySelectorAll('#categorySelectionGrid .cat-btn').forEach(btn => {
+        if (btn.getAttribute('data-category') === cat) {
+          btn.className = "cat-btn p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 flex items-center gap-2 text-xs font-bold transition-all shadow-sm";
+        } else {
+          btn.className = "cat-btn p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-all";
+        }
+      });
+    }
+
+    function selectPayment(method) {
+      document.getElementById('formPayment').value = method;
+      document.querySelectorAll('#paymentSelectionGrid .pay-btn').forEach(btn => {
+        if (btn.getAttribute('data-payment') === method) {
+          btn.className = "pay-btn p-2 rounded-xl border-2 border-slate-900 bg-slate-900 text-white text-xs font-bold text-center transition-all shadow-sm";
+        } else {
+          btn.className = "pay-btn p-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 text-center hover:bg-slate-50 transition-all";
+        }
+      });
+    }
+
+    function addAmount(delta) {
+      const input = document.getElementById('formAmount');
+      const current = parseFloat(input.value) || 0;
+      input.value = current + delta;
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('editExpenseId').value || crypto.randomUUID();
+      const amount = parseFloat(document.getElementById('formAmount').value) || 0;
+      const category = document.getElementById('formCategory').value;
+      const note = document.getElementById('formNote').value.trim() || category;
+      const date = document.getElementById('formDate').value;
+      const time = document.getElementById('formTime').value;
+      const payment_method = document.getElementById('formPayment').value;
+
+      const record = { id, amount, category, note, date, time, payment_method };
+
+      // Supabase Cloud Sync
+      if (supabaseClient) {
+        try {
+          const { error } = await supabaseClient.from('transactions').upsert(record);
+          if (error) throw error;
+        } catch (err) {
+          console.error("Supabase sync error:", err);
+        }
+      }
+
+      // Update Local State
+      const existingIdx = transactions.findIndex(t => t.id === id);
+      if (existingIdx >= 0) {
+        transactions[existingIdx] = record;
+        showToast(t('toast_updated'));
+      } else {
+        transactions.unshift(record);
+        showToast(t('toast_saved'));
+      }
+
+      // Sort by date & time desc
+      transactions.sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')));
+      saveLocalCache();
+      renderDashboard();
+      renderTransactions();
+      closeExpenseModal();
+    }
+
+    async function handleDeleteExpense() {
+      const id = document.getElementById('editExpenseId').value;
+      if (!id) return;
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('transactions').delete().eq('id', id);
+        } catch (e) {
+          console.error("Supabase delete error:", e);
+        }
+      }
+
+      transactions = transactions.filter(t => t.id !== id);
+      saveLocalCache();
+      renderDashboard();
+      renderTransactions();
+      closeExpenseModal();
+      showToast(t('toast_deleted'));
+    }
+
+    async function saveSettings() {
+      const budget = parseFloat(document.getElementById('settingBudgetTarget').value) || 20000;
+      monthlyBudget = budget;
+      localStorage.setItem(STORAGE_KEY_BUDGET, budget.toString());
+
+      const url = document.getElementById('settingSupabaseUrl').value.trim();
+      const key = document.getElementById('settingSupabaseKey').value.trim();
+      supabaseConfig = { url, key };
+      localStorage.setItem(STORAGE_KEY_SUPABASE, JSON.stringify(supabaseConfig));
+
+      initSupabase();
+      await loadTransactions();
+      closeSettingsModal();
+      showToast(t('toast_settings_saved'));
+    }
+
+    // ==========================================
+    // 📥 EXPORT CSV
+    // ==========================================
+    function exportToCSV() {
+      if (transactions.length === 0) {
+        showToast(t('empty_transactions'));
+        return;
+      }
+
+      const headers = ['ID', 'Date', 'Time', 'Category', 'Note', 'Amount', 'PaymentMethod'];
+      const rows = transactions.map(t => [
+        `"${t.id}"`,
+        `"${t.date}"`,
+        `"${t.time || ''}"`,
+        `"${t.category}"`,
+        `"${(t.note || '').replace(/"/g, '""')}"`,
+        t.amount,
+        `"${t.payment_method || ''}"`
+      ]);
+
+      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
+        + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `Ordine_Expenses_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast(t('toast_csv_exported'));
+    }
+
+    // ==========================================
+    // 🍞 TOAST NOTIFICATION
+    // ==========================================
+    let toastTimeout = null;
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastMessage').textContent = message;
+      toast.classList.remove('-translate-y-16', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-16', 'opacity-0');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
