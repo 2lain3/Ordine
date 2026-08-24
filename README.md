@@ -1,5 +1,4 @@
-[README.md](https://github.com/user-attachments/files/31360495/README.md)
-# Ordine# 歸序 Ordine — 現代簡約個人記帳 Web App / Minimalist Expense Tracker
+# 歸序 Ordine — 現代簡約個人記帳 Web App / Minimalist Expense Tracker
 
 <p align="center">
   <b>🌿 一款專為行動裝置打造的極簡風格個人記帳 Web App，支援中英雙語、智慧語音解析、Supabase 雲端同步與 iOS 捷徑自動化。</b><br>
